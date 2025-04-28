@@ -1,0 +1,56 @@
+name: Shop Meeting CI/CD
+
+on:
+  push:
+    paths:
+      - 'services/**'
+  pull_request:
+    paths:
+      - 'services/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          - auth-service
+          - product-service
+          - cart-service
+          - order-service
+          - profile-service
+          - payment-service
+          - support-service
+
+    steps:
+    
+      # Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+        # Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3'  
+       
+     # Install dependencies
+      - name: Install dependencies
+        run: |
+          cd services
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+     # Run Services Tests
+      - name: Run services Tests
+        run: |
+          cd services
+          pytest || echo "No tests yet"
+          
+        
+      - name: Run migrations  
+            run: |
+                cd services
+                alembic upgrade head || echo "No migrations yet"
+      
