@@ -8,12 +8,14 @@ db = SQLAlchemy()
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
-    
+
     CORS(app)
     db.init_app(app)
-    
-    from app.routes import profile_routes, wishlist_routes
-    app.register_blueprint(profile_routes.bp)
-    app.register_blueprint(wishlist_routes.bp)
-    
+
+    # register your blueprints only
+    from app.routes.profile_routes import bp as profile_bp
+    from app.routes.wishlist_routes import bp as wishlist_bp
+    app.register_blueprint(profile_bp)
+    app.register_blueprint(wishlist_bp)
+
     return app
