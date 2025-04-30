@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 from models import db, Order, OrderItem, ReturnRequest, ReturnItem, OrderStatusHistory
-from app import app  # Import app to get app context
+from app import create_app  # Import create_app to get app context
 
 def seed_data():
+    app = create_app()
     with app.app_context():
         # Create all tables
         db.create_all()
