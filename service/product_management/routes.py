@@ -28,7 +28,7 @@ def create_category():
     category = Category(name=name)
     db.session.add(category)
     db.session.commit()
-    return jsonify(category.id), 201
+    return jsonify({'id': category.id}), 201
 
 @bp.route('/categories', methods=['GET'])
 def get_categories():
@@ -48,6 +48,16 @@ def update_category(id):
     if not name:
         return jsonify({'error': 'Category name is required'}), 400
     category.name = name
+    db.session.commit()
+    return jsonify({'id': category.id, 'name': category.name})
+
+@bp.route('/categories/<int:id>', methods=['PATCH'])
+def patch_category(id):
+    category = Category.query.get_or_404(id)
+    data = request.get_json()
+    name = data.get('name')
+    if name is not None:
+        category.name = name
     db.session.commit()
     return jsonify({'id': category.id, 'name': category.name})
 
@@ -142,6 +152,30 @@ def update_product(id):
     db.session.commit()
     return jsonify(product.to_dict())
 
+@bp.route('/products/<int:id>', methods=['PATCH'])
+def patch_product(id):
+    product = Product.query.get_or_404(id)
+    data = request.get_json()
+    name = data.get('name')
+    description = data.get('description')
+    price = data.get('price')
+    category_id = data.get('category_id')
+
+    if category_id is not None and not Category.query.get(category_id):
+        return jsonify({'error': 'Category does not exist'}), 400
+
+    if name is not None:
+        product.name = name
+    if description is not None:
+        product.description = description
+    if price is not None:
+        product.price = price
+    if category_id is not None:
+        product.category_id = category_id
+
+    db.session.commit()
+    return jsonify(product.to_dict())
+
 @bp.route('/products/<int:id>', methods=['DELETE'])
 def delete_product(id):
     product = Product.query.get_or_404(id)
@@ -189,6 +223,27 @@ def update_review(id):
         return jsonify({'error': 'Rating must be between 1 and 5'}), 400
 
     if user_name:
+        review.user_name = user_name
+    if rating is not None:
+        review.rating = rating
+    if comment is not None:
+        review.comment = comment
+
+    db.session.commit()
+    return jsonify(review.to_dict())
+
+@bp.route('/reviews/<int:id>', methods=['PATCH'])
+def patch_review(id):
+    review = Review.query.get_or_404(id)
+    data = request.get_json()
+    user_name = data.get('user_name')
+    rating = data.get('rating')
+    comment = data.get('comment')
+
+    if rating is not None and not (1 <= rating <= 5):
+        return jsonify({'error': 'Rating must be between 1 and 5'}), 400
+
+    if user_name is not None:
         review.user_name = user_name
     if rating is not None:
         review.rating = rating

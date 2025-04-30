@@ -22,12 +22,14 @@ class ProductServiceTestCase(unittest.TestCase):
         response = self.client.post('/api/categories', json={'name': 'Shoes'})
         self.assertEqual(response.status_code, 201)
         data = response.get_json()
-        self.assertIsInstance(data, int)
+        self.assertIsInstance(data, dict)
+        self.assertIn('id', data)
 
     def test_create_product(self):
         # First create category
         response = self.client.post('/api/categories', json={'name': 'Shoes'})
-        category_id = response.get_json()
+        category_data = response.get_json()
+        category_id = category_data['id']
 
         product_data = {
             'name': 'Running Shoes',
@@ -44,7 +46,8 @@ class ProductServiceTestCase(unittest.TestCase):
     def test_get_products_with_pagination(self):
         # Create category and products
         response = self.client.post('/api/categories', json={'name': 'Shoes'})
-        category_id = response.get_json()
+        category_data = response.get_json()
+        category_id = category_data['id']
 
         for i in range(15):
             product_data = {
@@ -66,7 +69,8 @@ class ProductServiceTestCase(unittest.TestCase):
     def test_create_review_and_get_product(self):
         # Create category and product
         response = self.client.post('/api/categories', json={'name': 'Shoes'})
-        category_id = response.get_json()
+        category_data = response.get_json()
+        category_id = category_data['id']
 
         product_data = {
             'name': 'Running Shoes',
