@@ -9,7 +9,7 @@ from models import db, User, Product, CartItem, Order, OrderItem
 app = Flask(__name__)
 CORS(app)
 load_dotenv()
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', 'postgresql://BL4CK:Oversea838@localhost/customer_support')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
 
@@ -131,4 +131,4 @@ def checkout(user_id):
     return jsonify({'message': 'Order placed', 'order_id': order.id, 'total': total})
 
 if __name__ == '__main__':
-    app.run(port=5004, debug=True)
+    app.run(debug=True)

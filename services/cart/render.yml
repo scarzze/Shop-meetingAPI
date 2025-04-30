@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: shopping-cart-api
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: DATABASE_URI
+        value: postgresql://cart_service_user:J0NXXyu7S80Qq5g18wz5eOJ3AxH1gYUx@dpg-d069l23uibrs73ec2j6g-a.oregon-postgres.render.com/cart_service_db
