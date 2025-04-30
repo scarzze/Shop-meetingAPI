@@ -1,10 +1,13 @@
 from flask import Blueprint, jsonify, request
 from app.models import Profile, db
+from app.auth.middleware import auth_required
 
 bp = Blueprint('profile', __name__, url_prefix='/profile')
 
-@bp.route('/<user_id>', methods=['GET'])
-def get_profile(user_id):
+@bp.route('/me', methods=['GET'])
+@auth_required
+def get_profile():
+    user_id = request.user_id
     profile = Profile.query.filter_by(user_id=user_id).first()
     if not profile:
         profile = Profile(user_id=user_id)
@@ -20,13 +23,15 @@ def get_profile(user_id):
         'updated_at': profile.updated_at.isoformat()
     })
 
-@bp.route('/', methods=['PATCH'])
+@bp.route('/me', methods=['PATCH'])
+@auth_required
 def update_profile():
-    data = request.get_json()
-    user_id = data.get('user_id')
-    if not user_id:
-        return jsonify({'message': 'user_id is required in JSON body'}), 400
+    try:
+        data = request.get_json()
+    except Exception:
+        return jsonify({'message': 'Invalid JSON in request body'}), 400
 
+    user_id = request.user_id
     profile = Profile.query.filter_by(user_id=user_id).first()
     if not profile:
         return jsonify({'message': 'Profile not found'}), 404
@@ -37,7 +42,12 @@ def update_profile():
         profile.avatar = data['avatar']
     if 'preferences' in data:
         profile.preferences = data['preferences']
-    db.session.commit()
+    
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': 'Error updating profile'}), 500
 
     return jsonify({
         'message': 'Profile updated successfully',

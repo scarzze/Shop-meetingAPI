@@ -3,7 +3,7 @@ import requests
 from app.models import Profile, WishlistItem, db
 from app.utils.suggestions import get_product_suggestions
 from config import Config
-from auth.middleware import auth_required  # shared auth package
+from app.auth.middleware import auth_required  # local auth package
 
 bp = Blueprint('wishlist', __name__, url_prefix='/wishlist')
 
