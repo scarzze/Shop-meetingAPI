@@ -1,76 +1,118 @@
 from flask import Blueprint, jsonify, request
 import requests
 from app.models import Profile, WishlistItem, db
-from app.utils.suggestions import get_product_suggestions
+from app.auth.middleware import auth_required
 from config import Config
-from app.auth.middleware import auth_required  # local auth package
+import logging
 
-bp = Blueprint('wishlist', __name__, url_prefix='/wishlist')
+bp = Blueprint('wishlist', __name__)
+logger = logging.getLogger(__name__)
 
-@bp.route('/', methods=['GET'])
+@bp.route('/wishlist', methods=['GET'])
 @auth_required
 def get_wishlist():
-    user_id = request.user_id
-    profile = Profile.query.filter_by(user_id=user_id).first()
+    current_user_id = request.user_id
+    profile = Profile.query.filter_by(user_id=current_user_id).first()
     if not profile:
         return jsonify({'message': 'Profile not found'}), 404
-
-    items = WishlistItem.query.filter_by(profile_id=profile.id).all()
-    product_ids = [item.product_id for item in items]
-
+    
+    wishlist_items = WishlistItem.query.filter_by(profile_id=profile.id).all()
+    product_ids = [item.product_id for item in wishlist_items]
+    
+    # Fetch product details from product service
     products = []
-    for pid in product_ids:
+    failed_products = []
+    for product_id in product_ids:
         try:
-            resp = requests.get(f"{Config.PRODUCT_SERVICE_URL}/products/{pid}")
-            if resp.ok:
-                products.append(resp.json())
-        except requests.RequestException:
-            # If product service is unavailable, just add the ID
-            products.append({'id': pid, 'note': 'Product service unavailable'})
+            response = requests.get(
+                f"{Config.PRODUCT_SERVICE_URL}/products/{product_id}",
+                timeout=5
+            )
+            if response.status_code == 200:
+                products.append(response.json())
+            else:
+                failed_products.append(product_id)
+                logger.error(f"Failed to fetch product {product_id}: Status {response.status_code}")
+        except requests.RequestException as e:
+            failed_products.append(product_id)
+            logger.error(f"Failed to fetch product {product_id}: {str(e)}")
+    
+    result = {
+        'wishlist': products,
+        'total_items': len(products)
+    }
+    
+    if failed_products:
+        result['failed_products'] = failed_products
+        result['message'] = 'Some products could not be fetched'
+    
+    return jsonify(result)
 
-    return jsonify({'wishlist': products})
-
-@bp.route('/<string:product_id>', methods=['POST'])
+@bp.route('/wishlist/<product_id>', methods=['POST'])
 @auth_required
 def add_to_wishlist(product_id):
-    user_id = request.user_id
-    profile = Profile.query.filter_by(user_id=user_id).first()
+    current_user_id = request.user_id
+    profile = Profile.query.filter_by(user_id=current_user_id).first()
     if not profile:
         return jsonify({'message': 'Profile not found'}), 404
-
-    if WishlistItem.query.filter_by(profile_id=profile.id, product_id=product_id).first():
+    
+    # Verify product exists
+    try:
+        response = requests.get(
+            f"{Config.PRODUCT_SERVICE_URL}/products/{product_id}",
+            timeout=5
+        )
+        if response.status_code == 404:
+            return jsonify({'message': 'Product not found'}), 404
+        elif response.status_code != 200:
+            logger.error(f"Product service error: Status {response.status_code}")
+            return jsonify({'message': 'Unable to verify product'}), 502
+    except requests.RequestException as e:
+        logger.error(f"Failed to verify product {product_id}: {str(e)}")
+        return jsonify({'message': 'Product service unavailable'}), 503
+    
+    # Check if item already exists
+    existing_item = WishlistItem.query.filter_by(
+        profile_id=profile.id,
+        product_id=product_id
+    ).first()
+    
+    if existing_item:
         return jsonify({'message': 'Product already in wishlist'}), 400
-
-    item = WishlistItem(profile_id=profile.id, product_id=product_id)
-    db.session.add(item)
-    db.session.commit()
-
+    
+    try:
+        wishlist_item = WishlistItem(profile_id=profile.id, product_id=product_id)
+        db.session.add(wishlist_item)
+        db.session.commit()
+    except Exception as e:
+        logger.error(f"Database error: {str(e)}")
+        db.session.rollback()
+        return jsonify({'message': 'Failed to add product to wishlist'}), 500
+    
     return jsonify({'message': 'Product added to wishlist'})
 
-@bp.route('/<string:product_id>', methods=['DELETE'])
+@bp.route('/wishlist/<product_id>', methods=['DELETE'])
 @auth_required
 def remove_from_wishlist(product_id):
-    user_id = request.user_id
-    profile = Profile.query.filter_by(user_id=user_id).first()
+    current_user_id = request.user_id
+    profile = Profile.query.filter_by(user_id=current_user_id).first()
     if not profile:
         return jsonify({'message': 'Profile not found'}), 404
-
-    item = WishlistItem.query.filter_by(profile_id=profile.id, product_id=product_id).first()
-    if not item:
+    
+    wishlist_item = WishlistItem.query.filter_by(
+        profile_id=profile.id,
+        product_id=product_id
+    ).first()
+    
+    if not wishlist_item:
         return jsonify({'message': 'Product not found in wishlist'}), 404
-
-    db.session.delete(item)
-    db.session.commit()
-
+    
+    try:
+        db.session.delete(wishlist_item)
+        db.session.commit()
+    except Exception as e:
+        logger.error(f"Database error: {str(e)}")
+        db.session.rollback()
+        return jsonify({'message': 'Failed to remove product from wishlist'}), 500
+    
     return jsonify({'message': 'Product removed from wishlist'})
-
-@bp.route('/suggestions', methods=['GET'])
-@auth_required
-def get_suggestions():
-    user_id = request.user_id
-    profile = Profile.query.filter_by(user_id=user_id).first()
-    if not profile:
-        return jsonify({'message': 'Profile not found'}), 404
-
-    suggestions = get_product_suggestions(profile)
-    return jsonify({'suggestions': suggestions})

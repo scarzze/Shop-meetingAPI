@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    volumes:
+      - ./logs:/app/logs
+
+  celery_worker:
+    build: .
+    command: celery -A app.tasks worker --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - web
+    deploy:
+      replicas: 2
+    volumes:
+      - ./logs:/app/logs
+
+  celery_beat:
+    build: .
+    command: celery -A app.tasks beat --loglevel=info
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - web
+    volumes:
+      - ./logs:/app/logs
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=profile_service_db
+      - POSTGRES_USER=profile_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+volumes:
+  postgres_data:
+  redis_data:
