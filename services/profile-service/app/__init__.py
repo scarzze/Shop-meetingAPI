@@ -15,15 +15,13 @@ def create_app(config_class=Config):
     from app.routes import (
         profile_routes, 
         wishlist_routes, 
-        address_routes
+        address_routes,
+        home_routes
     )
     
+    app.register_blueprint(home_routes.bp)
     app.register_blueprint(profile_routes.bp)
     app.register_blueprint(wishlist_routes.bp)
     app.register_blueprint(address_routes.bp)
-    
-    # Initialize database tables
-    with app.app_context():
-        db.create_all()
     
     return app
