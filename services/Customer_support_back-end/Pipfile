@@ -4,15 +4,17 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-flask = "*"
-flask-sqlalchemy = "*"
-flask-jwt-extended = "*"
-flask-cors = "*"
-flask-mail = "*"
-flask-socketio = "*"
-werkzeug = "*"
+flask = "==2.0.3"
+flask-sqlalchemy = "==2.5.1"
+flask-jwt-extended = "==4.4.4"
+flask-cors = "==3.0.10"
+flask-mail = "==0.9.1"
+flask-socketio = "==5.1.1"
+werkzeug = "==2.0.3"
+python-socketio = "==5.4.0"
+psycopg2-binary = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.12"
+python_version = "3.8.13"
