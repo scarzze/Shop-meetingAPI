@@ -1,10 +1,12 @@
 from functools import wraps
-from flask import request, jsonify, current_app
+from flask import request, jsonify
 import requests
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
 
 load_dotenv()
+
+AUTH_SERVICE_URL = os.getenv('AUTH_SERVICE_URL', 'http://localhost:5002')
 
 def auth_required(f):
     @wraps(f)
@@ -20,10 +22,9 @@ def auth_required(f):
         token = auth_header.split(' ')[1]
         
         # Verify token with auth service
-        auth_service_url = current_app.config.get('AUTH_SERVICE_URL', 'http://localhost:5002')
         try:
             response = requests.get(
-                f"{auth_service_url}/auth/verify",
+                f"{AUTH_SERVICE_URL}/auth/verify",
                 headers={'Authorization': f'Bearer {token}'}
             )
             

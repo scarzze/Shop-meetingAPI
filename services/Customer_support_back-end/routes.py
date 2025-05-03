@@ -3,6 +3,8 @@ from models import User, Ticket, Feedback, Log
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from datetime import datetime
+from .models import db, Ticket, Message, SupportAgent
+from .app.utils.auth_middleware import auth_required, support_agent_required
 
 # Setup the database session
 DATABASE_URI = 'postgresql://BL4CK:Oversea838@localhost/customer_support'  # Update as needed
@@ -15,6 +17,7 @@ user_bp = Blueprint('user', __name__)
 ticket_bp = Blueprint('ticket', __name__)
 feedback_bp = Blueprint('feedback', __name__)
 chat_bp = Blueprint('chat', __name__)
+support_bp = Blueprint('support', __name__)
 
 # -------------------------- USER ROUTES --------------------------
 
@@ -49,31 +52,144 @@ def get_user(user_id):
 # -------------------------- TICKET ROUTES --------------------------
 
 @ticket_bp.route('/ticket', methods=['POST'])
+@auth_required
 def create_ticket():
     data = request.get_json()
-    ticket = Ticket(
-        user_id=data['user_id'],
-        subject=data['subject'],
-        description=data['description']
-    )
-    session.add(ticket)
-    session.commit()
-    return jsonify({"message": "Ticket created successfully"}), 201
+    if not data or 'subject' not in data or 'description' not in data:
+        return jsonify({"error": "Subject and description required"}), 400
 
+    user_id = request.user['id']
+    
+    ticket = Ticket(
+        user_id=user_id,
+        subject=data['subject'],
+        description=data['description'],
+        status='Open'
+    )
+    
+    db.session.add(ticket)
+    db.session.commit()
+    
+    return jsonify({
+        "message": "Ticket created successfully",
+        "ticket_id": ticket.id
+    }), 201
 
 @ticket_bp.route('/ticket/<int:ticket_id>', methods=['GET'])
+@auth_required
 def get_ticket(ticket_id):
-    ticket = session.query(Ticket).get(ticket_id)
-    if not ticket:
-        return jsonify({"error": "Ticket not found"}), 404
+    ticket = Ticket.query.get_or_404(ticket_id)
+    
+    if ticket.user_id != request.user['id'] and not request.user.get('is_support_agent'):
+        return jsonify({"error": "Unauthorized access"}), 403
+        
     return jsonify({
         "id": ticket.id,
         "subject": ticket.subject,
         "description": ticket.description,
         "status": ticket.status,
-        "created_at": ticket.created_at
-    })
+        "created_at": ticket.created_at.isoformat(),
+        "messages": [{
+            "id": msg.id,
+            "content": msg.content,
+            "sender_id": msg.sender_id,
+            "sender_type": msg.sender_type,
+            "created_at": msg.created_at.isoformat()
+        } for msg in ticket.messages]
+    }), 200
 
+@ticket_bp.route('/tickets', methods=['GET'])
+@auth_required
+def get_tickets():
+    if request.user.get('is_support_agent'):
+        tickets = Ticket.query.all()
+    else:
+        tickets = Ticket.query.filter_by(user_id=request.user['id']).all()
+        
+    return jsonify({
+        "tickets": [{
+            "id": ticket.id,
+            "subject": ticket.subject,
+            "status": ticket.status,
+            "created_at": ticket.created_at.isoformat()
+        } for ticket in tickets]
+    }), 200
+
+@ticket_bp.route('/tickets/<int:ticket_id>/messages', methods=['POST'])
+@auth_required
+def add_message(ticket_id):
+    ticket = Ticket.query.get_or_404(ticket_id)
+    
+    if ticket.user_id != request.user['id'] and not request.user.get('is_support_agent'):
+        return jsonify({"error": "Unauthorized access"}), 403
+        
+    data = request.get_json()
+    if not data or 'content' not in data:
+        return jsonify({"error": "Message content required"}), 400
+        
+    message = Message(
+        ticket_id=ticket_id,
+        content=data['content'],
+        sender_id=request.user['id'],
+        sender_type='agent' if request.user.get('is_support_agent') else 'user'
+    )
+    
+    db.session.add(message)
+    db.session.commit()
+    
+    return jsonify({
+        "message": "Message added successfully",
+        "message_id": message.id
+    }), 201
+
+@ticket_bp.route('/tickets/<int:ticket_id>/status', methods=['PUT'])
+@support_agent_required
+def update_ticket_status(ticket_id):
+    ticket = Ticket.query.get_or_404(ticket_id)
+    
+    data = request.get_json()
+    if not data or 'status' not in data:
+        return jsonify({"error": "Status required"}), 400
+        
+    valid_statuses = ['Open', 'In Progress', 'Resolved', 'Closed']
+    if data['status'] not in valid_statuses:
+        return jsonify({"error": f"Status must be one of: {', '.join(valid_statuses)}"}), 400
+        
+    ticket.status = data['status']
+    db.session.commit()
+    
+    return jsonify({
+        "message": "Ticket status updated successfully",
+        "status": ticket.status
+    }), 200
+
+@ticket_bp.route('/tickets/search', methods=['GET'])
+@support_agent_required
+def search_tickets():
+    query = request.args.get('q', '')
+    status = request.args.get('status')
+    
+    tickets_query = Ticket.query
+    
+    if query:
+        tickets_query = tickets_query.filter(
+            (Ticket.subject.ilike(f'%{query}%')) |
+            (Ticket.description.ilike(f'%{query}%'))
+        )
+        
+    if status:
+        tickets_query = tickets_query.filter_by(status=status)
+        
+    tickets = tickets_query.all()
+    
+    return jsonify({
+        "tickets": [{
+            "id": ticket.id,
+            "subject": ticket.subject,
+            "status": ticket.status,
+            "created_at": ticket.created_at.isoformat()
+        } for ticket in tickets]
+    }), 200
 
 # -------------------------- FEEDBACK ROUTES --------------------------
 
@@ -113,7 +229,6 @@ def chat():
     data = request.get_json()
     user_message = data.get('message', '')
     
-    # Here you can integrate the chatbot logic or send the message to another service
     response = {"message": f"Chatbot Response: {user_message}"}
     
     return jsonify(response)
@@ -135,3 +250,4 @@ def register_routes(app):
     app.register_blueprint(ticket_bp, url_prefix='/api/v1')
     app.register_blueprint(feedback_bp, url_prefix='/api/v1')
     app.register_blueprint(chat_bp, url_prefix='/api/v1')
+    app.register_blueprint(support_bp, url_prefix='/api/v1')

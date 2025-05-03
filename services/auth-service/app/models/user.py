@@ -16,6 +16,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     login_attempts = db.Column(db.Integer, default=0)
     last_login_attempt = db.Column(db.DateTime)
+    role = db.Column(db.String(20), default='user')  # 'user', 'support_agent', 'admin'
 
     def set_password(self, password):
         salt = bcrypt.gensalt()
@@ -31,5 +32,8 @@ class User(db.Model):
             'first_name': self.first_name,
             'last_name': self.last_name,
             'created_at': self.created_at.isoformat(),
-            'is_active': self.is_active
+            'is_active': self.is_active,
+            'role': self.role,
+            'is_support_agent': self.role == 'support_agent',
+            'is_admin': self.role == 'admin'
         }
