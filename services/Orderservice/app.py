@@ -1,26 +1,49 @@
 from flask import Flask, jsonify, request
 from flask_migrate import Migrate
+from flask_cors import CORS
 from datetime import datetime
 import smtplib
 from email.mime.text import MIMEText
+from dotenv import load_dotenv
+import os
 from models import db, Order, OrderItem, ReturnRequest
+from auth_middleware import auth_required, admin_required
 
 def create_app(test_config=None):
     app = Flask(__name__)
+    load_dotenv()
+    
+    # Configure CORS with allowed origins
+    CORS(app, resources={
+        r"/*": {
+            "origins": [
+                'http://localhost:5000',  # Main application
+                'http://localhost:5001',  # Cart service
+                'http://localhost:5002',  # Auth service
+                'http://localhost:5003',  # Profile service
+                'http://localhost:5004',  # Customer Support service
+            ],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Authorization", "Content-Type"]
+        }
+    })
+    
     if test_config is None:
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://orderservice_user:orderservice_pass@localhost:5432/orderservice_db'
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+        app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+        
+        # Email configuration
+        app.config['SMTP_SERVER'] = os.getenv('SMTP_SERVER')
+        app.config['SMTP_PORT'] = int(os.getenv('SMTP_PORT', 587))
+        app.config['EMAIL_ADDRESS'] = os.getenv('EMAIL_ADDRESS')
+        app.config['EMAIL_PASSWORD'] = os.getenv('EMAIL_PASSWORD')
     else:
         app.config.update(test_config)
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
     migrate = Migrate(app, db)
-
-    # Email configuration (replace with your actual email settings)
-    app.config['SMTP_SERVER'] = 'smtp.example.com'
-    app.config['SMTP_PORT'] = 587
-    app.config['EMAIL_ADDRESS'] = 'your_email@example.com'
-    app.config['EMAIL_PASSWORD'] = 'your_password'
 
     # Helper Functions
     def send_email(to_email, subject, body):
@@ -56,8 +79,13 @@ def create_app(test_config=None):
 
     # Endpoints
     @app.route('/orders/user/<int:user_id>', methods=['GET'])
+    @auth_required
     def get_order_history(user_id):
         """Get order history for a specific user"""
+        # Verify user is accessing their own orders
+        if user_id != request.user['id']:
+            return jsonify({"error": "Unauthorized access"}), 403
+            
         orders = Order.query.filter_by(user_id=user_id).order_by(Order.order_date.desc()).all()
         
         order_list = []
@@ -78,9 +106,14 @@ def create_app(test_config=None):
         return jsonify({'orders': order_list}), 200
 
     @app.route('/orders/<string:order_id>', methods=['GET'])
+    @auth_required
     def get_order_details(order_id):
         """Get details for a specific order"""
         order = Order.query.get_or_404(order_id)
+        
+        # Verify user owns this order
+        if order.user_id != request.user['id']:
+            return jsonify({"error": "Unauthorized access"}), 403
         
         order_data = {
             'order_id': order.id,
@@ -99,70 +132,81 @@ def create_app(test_config=None):
         
         return jsonify(order_data), 200
 
-    @app.route('/orders/<string:order_id>/status', methods=['GET', 'PUT'])
-    def order_status(order_id):
-        """Get or update order status"""
+    @app.route('/orders/<string:order_id>/status', methods=['GET'])
+    @auth_required
+    def get_order_status(order_id):
+        """Get order status"""
         order = Order.query.get_or_404(order_id)
         
-        if request.method == 'GET':
-            return jsonify({'status': order.status}), 200
+        # Verify user owns this order
+        if order.user_id != request.user['id']:
+            return jsonify({"error": "Unauthorized access"}), 403
+            
+        return jsonify({'status': order.status}), 200
+
+    @app.route('/orders/<string:order_id>/status', methods=['PUT'])
+    @admin_required
+    def update_order_status(order_id):
+        """Update order status (admin only)"""
+        if not request.is_json:
+            return jsonify({'error': 'Request must be JSON'}), 400
         
-        elif request.method == 'PUT':
-            if not request.is_json:
-                return jsonify({'error': 'Request must be JSON'}), 400
-            data = request.get_json()
-            new_status = data.get('status')
+        order = Order.query.get_or_404(order_id)
+        data = request.get_json()
+        new_status = data.get('status')
+        
+        if not new_status:
+            return jsonify({'error': 'Status is required'}), 400
             
-            if not new_status:
-                return jsonify({'error': 'Status is required'}), 400
-                
-            # Validate status transition
-            valid_transitions = {
-                'Processing': ['Shipped', 'Cancelled'],
-                'Shipped': ['Delivered', 'Returned'],
-                'Delivered': ['Returned'],
-                'Returned': ['Refunded'],
-                'Cancelled': [],
-                'Refunded': []
-            }
-            
-            if new_status not in valid_transitions.get(order.status, []):
-                return jsonify({'error': f'Invalid status transition from {order.status} to {new_status}'}), 400
-            
-            # Update status
-            order.status = new_status
-            try:
-                db.session.commit()
-            except Exception as e:
-                db.session.rollback()
-                return jsonify({'error': f'Database error: {str(e)}'}), 500
-            
-            # Send notification if shipped
-            if new_status == 'Shipped':
-                # In a real app, you would get the user's email from the user service
-                user_email = f"user{order.user_id}@example.com"
-                subject = f"Your Order #{order.id} Has Shipped"
-                body = (
-                    "Hello,\n\n"
-                    f"Your order #{order.id} has been shipped and is on its way to you.\n\n"
-                    f"Expected delivery date: {datetime.now().date()} (estimate)\n\n"
-                    "Thank you for shopping with us!"
-                )
-                
-                send_email(user_email, subject, body)
-            
-            return jsonify({'message': 'Order status updated successfully'}), 200
+        # Validate status transition
+        valid_transitions = {
+            'Processing': ['Shipped', 'Cancelled'],
+            'Shipped': ['Delivered', 'Returned'],
+            'Delivered': ['Returned'],
+            'Returned': ['Refunded'],
+            'Cancelled': [],
+            'Refunded': []
+        }
+        
+        if new_status not in valid_transitions.get(order.status, []):
+            return jsonify({'error': f'Invalid status transition from {order.status} to {new_status}'}), 400
+        
+        # Update status
+        order.status = new_status
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'Database error: {str(e)}'}), 500
+        
+        # Send notification if shipped
+        if new_status == 'Shipped':
+            user_email = f"user{order.user_id}@example.com"  # In production, get from user service
+            subject = f"Your Order #{order.id} Has Shipped"
+            body = (
+                "Hello,\n\n"
+                f"Your order #{order.id} has been shipped and is on its way to you.\n\n"
+                f"Expected delivery date: {datetime.now().date()} (estimate)\n\n"
+                "Thank you for shopping with us!"
+            )
+            send_email(user_email, subject, body)
+        
+        return jsonify({'message': 'Order status updated successfully'}), 200
 
     @app.route('/orders/<string:order_id>/cancel', methods=['POST'])
-    @validate_json([])
+    @auth_required
     def cancel_order(order_id):
         """Request order cancellation"""
         order = Order.query.get_or_404(order_id)
         
+        # Verify user owns this order
+        if order.user_id != request.user['id']:
+            return jsonify({"error": "Unauthorized access"}), 403
+        
         if order.status not in ['Processing']:
             return jsonify({'error': 'Order cannot be cancelled at this stage'}), 400
         
-        data = request.get_json()
+        data = request.get_json() or {}
         reason = data.get('reason', 'No reason provided')
         
         # Update order status
@@ -173,37 +217,36 @@ def create_app(test_config=None):
             db.session.rollback()
             return jsonify({'error': f'Database error: {str(e)}'}), 500
         
-        # In a real app, you would process the refund here
-        # For now, we'll just log it
-        print(f"Order {order_id} cancelled. Refund should be processed for amount {order.total_amount}")
-        
         return jsonify({'message': 'Order cancelled successfully'}), 200
 
     @app.route('/returns', methods=['POST'])
-    @validate_json(['order_id', 'user_id', 'reason'])
+    @auth_required
     def request_return():
-        """Request a return for an order or item"""
+        """Request a return for an order"""
         data = request.get_json()
-        order_id = data.get('order_id')
-        user_id = data.get('user_id')
-        reason = data.get('reason')
+        if not data or 'order_id' not in data:
+            return jsonify({"error": "Missing order_id"}), 400
+            
+        order = Order.query.get_or_404(data['order_id'])
         
-        order = Order.query.get_or_404(order_id)
+        # Verify user owns this order
+        if order.user_id != request.user['id']:
+            return jsonify({"error": "Unauthorized access"}), 403
         
         # Validate order can be returned
         if order.status != 'Delivered':
             return jsonify({'error': 'Only delivered orders can be returned'}), 400
         
         # Check if return already exists
-        existing_return = ReturnRequest.query.filter_by(order_id=order_id).first()
+        existing_return = ReturnRequest.query.filter_by(order_id=data['order_id']).first()
         if existing_return:
             return jsonify({'error': 'Return already requested for this order'}), 400
         
         # Create return request
         return_request = ReturnRequest(
-            order_id=order_id,
-            user_id=user_id,
-            reason=reason
+            order_id=data['order_id'],
+            user_id=request.user['id'],
+            reason=data.get('reason', 'No reason provided')
         )
         
         db.session.add(return_request)
@@ -219,9 +262,14 @@ def create_app(test_config=None):
         }), 201
 
     @app.route('/returns/<int:return_id>', methods=['GET'])
+    @auth_required
     def get_return_status(return_id):
         """Get status of a return request"""
         return_request = ReturnRequest.query.get_or_404(return_id)
+        
+        # Verify user owns this return request
+        if return_request.user_id != request.user['id']:
+            return jsonify({"error": "Unauthorized access"}), 403
         
         return_data = {
             'return_id': return_request.id,
@@ -235,26 +283,23 @@ def create_app(test_config=None):
         return jsonify(return_data), 200
 
     @app.route('/returns/<int:return_id>/process', methods=['PUT'])
-    @validate_json(['action'])
+    @admin_required
     def process_return(return_id):
         """Process a return request (admin only)"""
-        # In a real app, you would check admin permissions here
         return_request = ReturnRequest.query.get_or_404(return_id)
         order = Order.query.get_or_404(return_request.order_id)
         
         data = request.get_json()
-        action = data.get('action')  # 'approve' or 'reject'
+        if not data or 'action' not in data:
+            return jsonify({'error': 'Action is required'}), 400
+            
+        action = data['action']
         resolution = data.get('resolution', '')
         
         if action == 'approve':
             return_request.status = 'Approved'
             return_request.resolution = resolution or 'Return approved'
-            
-            # Update order status
             order.status = 'Returned'
-            
-            # Process refund (in a real app, you would integrate with payment gateway)
-            print(f"Refund processed for order {order.id}, amount: {order.total_amount}")
             
         elif action == 'reject':
             return_request.status = 'Rejected'
@@ -269,7 +314,7 @@ def create_app(test_config=None):
             return jsonify({'error': f'Database error: {str(e)}'}), 500
         
         # Notify user
-        user_email = f"user{return_request.user_id}@example.com"
+        user_email = f"user{return_request.user_id}@example.com"  # In production, get from user service
         subject = f"Update on Your Return Request #{return_request.id}"
         body = (
             "Hello,\n\n"
@@ -281,6 +326,10 @@ def create_app(test_config=None):
         send_email(user_email, subject, body)
         
         return jsonify({'message': f'Return request {action}ed successfully'}), 200
+
+    @app.route('/health')
+    def health_check():
+        return {'status': 'healthy', 'service': 'order'}, 200
 
     return app
 

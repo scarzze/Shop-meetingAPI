@@ -7,6 +7,8 @@ from flask_limiter.util import get_remote_address
 
 from .models.user import db
 from .routes.auth_routes import auth_bp
+from .commands import create_support_agent
+from .utils.error_handlers import register_error_handlers
 from config import Config
 
 def create_app(config_class=Config):
@@ -35,6 +37,12 @@ def create_app(config_class=Config):
         default_limits=["200 per day", "50 per hour"],
         storage_uri=app.config['RATELIMIT_STORAGE_URL']
     )
+    
+    # Register error handlers
+    register_error_handlers(app)
+    
+    # Register commands
+    app.cli.add_command(create_support_agent)
     
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')

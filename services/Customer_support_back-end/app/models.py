@@ -1,13 +1,14 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from datetime import datetime
-from sqlalchemy.ext.declarative import declarative_base
+import enum
 
-Base = declarative_base()
+db = SQLAlchemy()
 
 # User Model
-class User(Base):
+class User(db.Model):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -23,8 +24,20 @@ class User(Base):
     def __repr__(self):
         return f"<User(id={self.id}, username={self.username}, email={self.email})>"
 
+# Support Agent Model
+class SupportAgent(db.Model):
+    __tablename__ = 'support_agents'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    department = Column(String(100))
+    is_available = Column(db.Boolean, default=True)
+    created_at = Column(DateTime, default=func.now())
+    
+    user = relationship('User', backref='agent_profile')
+
 # Ticket Model
-class Ticket(Base):
+class Ticket(db.Model):
     __tablename__ = 'tickets'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -41,7 +54,7 @@ class Ticket(Base):
         return f"<Ticket(id={self.id}, subject={self.subject}, user_id={self.user_id}, status={self.status})>"
 
 # Feedback Model
-class Feedback(Base):
+class Feedback(db.Model):
     __tablename__ = 'feedbacks'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -58,7 +71,7 @@ class Feedback(Base):
         return f"<Feedback(id={self.id}, user_id={self.user_id}, ticket_id={self.ticket_id}, rating={self.rating})>"
 
 # Log Model
-class Log(Base):
+class Log(db.Model):
     __tablename__ = 'logs'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -71,6 +84,20 @@ class Log(Base):
     def __repr__(self):
         return f"<Log(id={self.id}, ticket_id={self.ticket_id}, message={self.message})>"
 
+# Message Model
+class Message(db.Model):
+    __tablename__ = 'messages'
+    
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ticket_id = Column(Integer, ForeignKey('tickets.id'), nullable=False)
+    sender_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    content = Column(Text, nullable=False)
+    sender_type = Column(String(20), nullable=False)  # 'user' or 'agent'
+    created_at = Column(DateTime, default=func.now())
+    
+    ticket = relationship('Ticket', backref='messages')
+    sender = relationship('User')
+
 # Creating all the tables
 def create_tables(engine):
-    Base.metadata.create_all(engine)
+    db.create_all(engine)
