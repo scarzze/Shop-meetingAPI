@@ -49,6 +49,7 @@ class Ticket(db.Model):
 
     user = relationship('User', back_populates='tickets')
     logs = relationship('Log', back_populates='ticket')
+    feedbacks = relationship('Feedback', back_populates='ticket')
 
     def __repr__(self):
         return f"<Ticket(id={self.id}, subject={self.subject}, user_id={self.user_id}, status={self.status})>"
