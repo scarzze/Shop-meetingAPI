@@ -9,6 +9,7 @@ This project consists of multiple microservices that work together to provide a 
 - Profile Service (Port 5003): Manages user profiles and preferences
 - Order Service (Port 5005): Handles order processing and management
 - Customer Support Service (Port 5004): Provides customer support functionality
+- Product Management Service (Port 5006): Manages products, categories, and reviews
 
 ## Prerequisites
 
@@ -39,6 +40,7 @@ The services will be available at:
 - Profile Service: http://localhost:5003
 - Order Service: http://localhost:5005
 - Customer Support: http://localhost:5004
+- Product Management Service: http://localhost:5006
 
 ## Health Monitoring
 

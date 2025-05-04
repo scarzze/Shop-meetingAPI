@@ -104,6 +104,31 @@ services:
     networks:
       - shop-network
 
+  product-service:
+    build: ./services/product-service
+    ports:
+      - "5006:5006"
+    environment:
+      - DATABASE_URL=postgresql://hosea:moringa001@postgres:5432/product_service_db
+      - AUTH_SERVICE_URL=http://auth-service:5002
+      - POSTGRES_USER=hosea
+      - POSTGRES_PASSWORD=moringa001
+      - POSTGRES_DB=product_service_db
+      - SEED_DB=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - shop-network
+
   health-checker:
     build:
       context: .
@@ -114,6 +139,7 @@ services:
       - PROFILE_SERVICE_URL=http://profile-service:5003
       - ORDER_SERVICE_URL=http://order-service:5005
       - CUSTOMER_SUPPORT_URL=http://customer-support:5004
+      - PRODUCT_SERVICE_URL=http://product-service:5006
     depends_on:
       auth-service:
         condition: service_healthy
@@ -124,6 +150,8 @@ services:
       order-service:
         condition: service_healthy
       customer-support:
+        condition: service_healthy
+      product-service:
         condition: service_healthy
     networks:
       - shop-network
