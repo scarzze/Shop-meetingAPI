@@ -6,9 +6,9 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 from .utils.error_handlers import register_error_handlers
+from .models import db
 
 # Initialize extensions
-db = SQLAlchemy()
 migrate = Migrate()
 socketio = SocketIO()
 
@@ -17,7 +17,7 @@ def create_app():
     load_dotenv()
     
     # Load configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI', 'postgresql://victor:password123@localhost/customer_support_db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
     app.config['AUTH_SERVICE_URL'] = os.getenv('AUTH_SERVICE_URL', 'http://localhost:5002')

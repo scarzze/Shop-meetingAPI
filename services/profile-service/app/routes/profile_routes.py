@@ -3,12 +3,12 @@ from ..models import Profile, db
 from ..auth.middleware import auth_required
 from ..utils.validators import validate_profile_data
 
-profile_bp = Blueprint('profile', __name__)
+bp = Blueprint('profile', __name__)
 
-@profile_bp.route('/', methods=['GET'])
+@bp.route('/', methods=['GET'])
 @auth_required
 def get_profile():
-    """Get the p.rofile of the authenticated user"""
+    """Get the profile of the authenticated user"""
     user_id = request.user['id']
     profile = Profile.query.filter_by(user_id=user_id).first()
     
@@ -17,7 +17,7 @@ def get_profile():
         
     return jsonify(profile.to_dict()), 200
 
-@profile_bp.route('/', methods=['PUT', 'PATCH'])
+@bp.route('/', methods=['PUT', 'PATCH'])
 @auth_required
 def update_profile():
     """Update the authenticated user's profile"""
@@ -44,7 +44,7 @@ def update_profile():
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
 
-@profile_bp.route('/preferences', methods=['GET'])
+@bp.route('/preferences', methods=['GET'])
 @auth_required
 def get_preferences():
     """Get user preferences"""
@@ -56,7 +56,7 @@ def get_preferences():
         
     return jsonify(profile.preferences or {}), 200
 
-@profile_bp.route('/preferences', methods=['PATCH'])
+@bp.route('/preferences', methods=['PATCH'])
 @auth_required
 def update_preferences():
     """Update user preferences"""

@@ -87,3 +87,16 @@ def validate_request_data(schema_class, data, partial=False):
         return validated_data, None
     except ValidationError as err:
         return None, err.messages
+
+def validate_profile_data(data, partial=False):
+    """
+    Validate profile data using ProfileSchema
+    
+    Args:
+        data: The profile data to validate
+        partial: Whether to allow partial updates
+    
+    Returns:
+        tuple: (validated_data, errors)
+    """
+    return validate_request_data(ProfileSchema, data, partial)

@@ -28,7 +28,6 @@ CORS(app, resources={
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.json.compact = False
 
 migrate = Migrate(app, db)
 
@@ -161,4 +160,4 @@ def checkout():
     return jsonify({'message': 'Order placed', 'order_id': order.id, 'total': total})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

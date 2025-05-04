@@ -1,0 +1,140 @@
+{
+  "timestamp": "2025-05-04T10:06:51.722865",
+  "services": {
+    "auth": {
+      "name": "Authentication Service",
+      "tests": [
+        {
+          "endpoint": "/health",
+          "method": "GET",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        },
+        {
+          "endpoint": "/auth/register",
+          "method": "POST",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        },
+        {
+          "endpoint": "/auth/login",
+          "method": "POST",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        }
+      ],
+      "all_passed": false
+    },
+    "cart": {
+      "name": "Cart Service",
+      "tests": [
+        {
+          "endpoint": "/health",
+          "method": "GET",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        },
+        {
+          "endpoint": "/cart",
+          "method": "GET",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        },
+        {
+          "endpoint": "/cart/add",
+          "method": "POST",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        }
+      ],
+      "all_passed": false
+    },
+    "profile": {
+      "name": "Profile Service",
+      "tests": [
+        {
+          "endpoint": "/health",
+          "method": "GET",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        },
+        {
+          "endpoint": "/profile",
+          "method": "GET",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        },
+        {
+          "endpoint": "/addresses",
+          "method": "GET",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        }
+      ],
+      "all_passed": false
+    },
+    "order": {
+      "name": "Order Service",
+      "tests": [
+        {
+          "endpoint": "/health",
+          "method": "GET",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        },
+        {
+          "endpoint": "/orders/user/1",
+          "method": "GET",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        }
+      ],
+      "all_passed": false
+    },
+    "customer-support": {
+      "name": "Customer Support Service",
+      "tests": [
+        {
+          "endpoint": "/health",
+          "method": "GET",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        },
+        {
+          "endpoint": "/api/v1/tickets",
+          "method": "GET",
+          "success": false,
+          "response": {
+            "error": "Connection failed"
+          }
+        }
+      ],
+      "all_passed": false
+    }
+  },
+  "integration_tests": []
+}

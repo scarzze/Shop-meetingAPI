@@ -1,13 +1,16 @@
 from flask import Blueprint, request, jsonify
-from models import User, Ticket, Feedback, Log
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from datetime import datetime
-from .models import db, Ticket, Message, SupportAgent
-from .app.utils.auth_middleware import auth_required, support_agent_required
+from .models import db, User, Ticket, Message, SupportAgent, Feedback, Log
+from .utils.auth_middleware import auth_required, support_agent_required
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Setup the database session
-DATABASE_URI = 'postgresql://BL4CK:Oversea838@localhost/customer_support'  # Update as needed
+DATABASE_URI = os.getenv('DATABASE_URI', 'postgresql://victor:password123@localhost/customer_support_db')
 engine = create_engine(DATABASE_URI)
 Session = sessionmaker(bind=engine)
 session = Session()
