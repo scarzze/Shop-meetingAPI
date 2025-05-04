@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import os
 from models import db, Order, OrderItem, ReturnRequest
 from utils.auth_utils import auth_required, admin_required
+from utils.user_sync import sync_user_from_auth
 
 def create_app(test_config=None):
     app = Flask(__name__)
@@ -86,6 +87,9 @@ def create_app(test_config=None):
         current_user = request.user
         if current_user.get('id') != user_id and not current_user.get('is_admin', False):
             return jsonify({"error": "Unauthorized access"}), 403
+        
+        # Sync user data to ensure user exists in database
+        sync_user_from_auth(current_user)
         
         # If DEBUG_MODE is enabled, return mock order data
         debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'

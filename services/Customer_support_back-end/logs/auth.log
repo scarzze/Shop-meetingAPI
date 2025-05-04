@@ -3,3 +3,8 @@
 2025-05-04 20:51:07,703 - INFO - Successful authentication - User ID: 1 - Endpoint: ticket.get_tickets
 2025-05-04 20:52:58,736 - INFO - Successful authentication - User ID: 1 - Endpoint: ticket.get_tickets
 2025-05-04 21:34:45,537 - INFO - Successful authentication - User ID: 4 - Endpoint: ticket.get_tickets
+2025-05-04 23:53:40,240 - INFO - Successful authentication - User ID: 5 - Endpoint: ticket.get_tickets
+2025-05-04 23:55:33,916 - INFO - Successful authentication - User ID: 5 - Endpoint: ticket.get_tickets
+2025-05-04 23:57:24,510 - WARNING - Authentication failure - IP: 127.0.0.1 - Endpoint: ticket.get_tickets - Error: Auth service unavailable
+2025-05-04 23:57:50,203 - INFO - Successful authentication - User ID: 5 - Endpoint: ticket.get_tickets
+2025-05-04 23:59:53,050 - INFO - Successful authentication - User ID: 5 - Endpoint: ticket.get_tickets

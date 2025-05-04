@@ -1,0 +1,60 @@
+2025-05-04 22:41:43,443 - cart-service - INFO - Starting Cart Service
+2025-05-04 22:41:43,443 - cart-service - INFO - Configured database connection
+2025-05-04 22:41:43,444 - cart-service - INFO - Registered error handlers
+2025-05-04 22:41:43,448 - cart-service - INFO - Starting server with debug=False
+2025-05-04 22:48:19,603 - cart-service - INFO - Starting Cart Service
+2025-05-04 22:48:19,603 - cart-service - INFO - Configured database connection
+2025-05-04 22:48:19,603 - cart-service - INFO - Registered error handlers
+2025-05-04 22:48:19,607 - cart-service - INFO - Starting server with debug=False
+2025-05-04 22:48:39,881 - cart-service - INFO - Successfully retrieved 0 cart items for user 5
+2025-05-04 22:48:51,923 - cart-service - ERROR - Error adding item to cart: (psycopg2.errors.ForeignKeyViolation) insert or update on table "cart_item" violates foreign key constraint "cart_item_user_id_fkey"
+DETAIL:  Key (user_id)=(5) is not present in table "user".
+
+[SQL: INSERT INTO cart_item (user_id, product_id, quantity) VALUES (%(user_id)s, %(product_id)s, %(quantity)s) RETURNING cart_item.id]
+[parameters: {'user_id': 5, 'product_id': 1, 'quantity': 2}]
+(Background on this error at: https://sqlalche.me/e/14/gkpj)
+2025-05-04 22:52:21,641 - cart-service - INFO - Starting Cart Service
+2025-05-04 22:52:21,641 - cart-service - INFO - Configured database connection
+2025-05-04 22:52:21,641 - cart-service - INFO - Registered error handlers
+2025-05-04 22:52:21,644 - cart-service - INFO - Starting server with debug=True
+2025-05-04 22:52:22,132 - cart-service - INFO - Starting Cart Service
+2025-05-04 22:52:22,132 - cart-service - INFO - Configured database connection
+2025-05-04 22:52:22,132 - cart-service - INFO - Registered error handlers
+2025-05-04 22:52:22,135 - cart-service - INFO - Starting server with debug=True
+2025-05-04 22:53:44,024 - cart-service - DEBUG - Getting all cart items for user 1
+2025-05-04 22:53:44,098 - cart-service - INFO - Successfully retrieved 1 cart items for user 1
+2025-05-04 23:04:20,336 - cart-service - INFO - Starting Cart Service
+2025-05-04 23:04:20,336 - cart-service - INFO - Configured database connection
+2025-05-04 23:04:20,336 - cart-service - INFO - Registered error handlers
+2025-05-04 23:04:53,830 - cart-service - INFO - Starting Cart Service
+2025-05-04 23:04:53,831 - cart-service - INFO - Configured database connection
+2025-05-04 23:04:53,831 - cart-service - INFO - Registered error handlers
+2025-05-04 23:04:53,834 - cart-service - INFO - Starting server with debug=False
+2025-05-04 23:11:12,070 - cart-service - INFO - Starting Cart Service
+2025-05-04 23:11:12,070 - cart-service - INFO - Configured database connection
+2025-05-04 23:11:12,070 - cart-service - INFO - Registered error handlers
+2025-05-04 23:11:12,074 - cart-service - INFO - Starting server with debug=False
+2025-05-04 23:11:29,608 - cart-service - INFO - Starting Cart Service
+2025-05-04 23:11:29,608 - cart-service - INFO - Configured database connection
+2025-05-04 23:11:29,608 - cart-service - INFO - Registered error handlers
+2025-05-04 23:11:29,611 - cart-service - INFO - Starting server with debug=False
+2025-05-04 23:11:50,122 - cart-service - INFO - Successfully retrieved 0 cart items for user 5
+2025-05-04 23:12:02,917 - cart-service - INFO - Successfully added item to cart: user_id=5, product_id=1
+2025-05-04 23:12:11,969 - cart-service - INFO - Successfully retrieved 1 cart items for user 5
+2025-05-04 23:22:25,666 - cart-service - INFO - Starting Cart Service
+2025-05-04 23:22:25,666 - cart-service - INFO - Configured database connection
+2025-05-04 23:22:25,666 - cart-service - INFO - Registered error handlers
+2025-05-04 23:23:33,372 - cart-service - INFO - Starting Cart Service
+2025-05-04 23:23:33,372 - cart-service - INFO - Configured database connection
+2025-05-04 23:23:33,373 - cart-service - INFO - Registered error handlers
+2025-05-04 23:24:31,673 - cart-service - INFO - Starting Cart Service
+2025-05-04 23:24:31,674 - cart-service - INFO - Configured database connection
+2025-05-04 23:24:31,674 - cart-service - INFO - Registered error handlers
+2025-05-04 23:31:17,720 - cart-service - INFO - Starting Cart Service
+2025-05-04 23:31:17,721 - cart-service - INFO - Configured database connection
+2025-05-04 23:31:17,721 - cart-service - INFO - Registered error handlers
+2025-05-04 23:32:05,547 - cart-service - INFO - Successfully retrieved 1 cart items for user 5
+2025-05-04 23:40:32,374 - cart-service - INFO - Starting Cart Service
+2025-05-04 23:40:32,374 - cart-service - INFO - Configured database connection
+2025-05-04 23:40:32,374 - cart-service - INFO - Registered error handlers
+2025-05-04 23:42:20,334 - cart-service - INFO - Successfully retrieved 1 cart items for user 5

@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from datetime import datetime
 from .models import db, User, Ticket, Message, SupportAgent, Feedback, Log
 from .utils.auth_middleware import auth_required, support_agent_required
+from .utils.user_sync import sync_user_from_auth
 import os
 from dotenv import load_dotenv
 
@@ -61,6 +62,8 @@ def create_ticket():
     if not data or 'subject' not in data or 'description' not in data:
         return jsonify({"error": "Subject and description required"}), 400
 
+    # Sync user from Auth Service to ensure user exists in database
+    user = sync_user_from_auth(request.user)
     user_id = request.user['id']
     
     ticket = Ticket(
@@ -81,6 +84,9 @@ def create_ticket():
 @ticket_bp.route('/ticket/<int:ticket_id>', methods=['GET'])
 @auth_required
 def get_ticket(ticket_id):
+    # Sync user from Auth Service to ensure user exists in database
+    sync_user_from_auth(request.user)
+    
     ticket = Ticket.query.get_or_404(ticket_id)
     
     if ticket.user_id != request.user['id'] and not request.user.get('is_support_agent'):
@@ -104,6 +110,9 @@ def get_ticket(ticket_id):
 @ticket_bp.route('/tickets', methods=['GET'])
 @auth_required
 def get_tickets():
+    # Sync user from Auth Service to ensure user exists in database
+    sync_user_from_auth(request.user)
+    
     import os
     debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
     

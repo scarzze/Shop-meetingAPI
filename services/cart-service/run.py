@@ -1,4 +1,6 @@
+import os
 from app import app
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    debug_mode = os.environ.get('DEBUG_MODE', 'false').lower() == 'true'
+    app.run(debug=debug_mode, port=5001)

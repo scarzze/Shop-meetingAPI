@@ -1,0 +1,72 @@
+2025-05-04 23:49:08,249 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-04 23:49:08,249 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-04 23:49:08,249 [INFO] [customer-support-service] - CORS configured
+2025-05-04 23:49:08,276 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-04 23:49:08,317 [INFO] [customer-support-service] - Database tables created successfully
+2025-05-04 23:49:08,318 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-04 23:54:22,388 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-04 23:54:22,388 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-04 23:54:22,388 [INFO] [customer-support-service] - CORS configured
+2025-05-04 23:54:22,421 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-04 23:54:22,465 [INFO] [customer-support-service] - Database tables created successfully
+2025-05-04 23:54:22,467 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-04 23:54:45,237 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-04 23:54:45,238 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-04 23:54:45,238 [INFO] [customer-support-service] - CORS configured
+2025-05-04 23:54:45,262 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-04 23:54:45,301 [INFO] [customer-support-service] - Database tables created successfully
+2025-05-04 23:54:45,302 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-04 23:56:48,791 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-04 23:56:48,792 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-04 23:56:48,792 [INFO] [customer-support-service] - CORS configured
+2025-05-04 23:56:48,818 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-04 23:56:48,862 [INFO] [customer-support-service] - Database tables created successfully
+2025-05-04 23:56:48,863 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-04 23:57:13,025 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-04 23:57:13,025 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-04 23:57:13,026 [INFO] [customer-support-service] - CORS configured
+2025-05-04 23:57:13,050 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-04 23:57:13,115 [INFO] [customer-support-service] - Database tables created successfully
+2025-05-04 23:57:13,116 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-04 23:57:50,244 [ERROR] [customer-support-service] - Exception on /api/v1/tickets [GET]
+Traceback (most recent call last):
+  File "/home/victor/.pyenv/versions/3.8.13/lib/python3.8/site-packages/flask/app.py", line 2070, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/victor/.pyenv/versions/3.8.13/lib/python3.8/site-packages/flask/app.py", line 1515, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/victor/.pyenv/versions/3.8.13/lib/python3.8/site-packages/flask_cors/extension.py", line 165, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "/home/victor/.pyenv/versions/3.8.13/lib/python3.8/site-packages/flask/app.py", line 1513, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/victor/.pyenv/versions/3.8.13/lib/python3.8/site-packages/flask/app.py", line 1499, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "/mnt/data/Downloads/phase5-project/Shop-meetingAPI/services/Customer_support_back-end/app/utils/auth_middleware.py", line 74, in decorated_function
+    return f(*args, **kwargs)
+  File "/mnt/data/Downloads/phase5-project/Shop-meetingAPI/services/Customer_support_back-end/app/routes.py", line 114, in get_tickets
+    sync_user_from_auth(request.user)
+  File "/mnt/data/Downloads/phase5-project/Shop-meetingAPI/services/Customer_support_back-end/app/utils/user_sync.py", line 31, in sync_user_from_auth
+    user = User(
+  File "<string>", line 4, in __init__
+  File "/home/victor/.pyenv/versions/3.8.13/lib/python3.8/site-packages/sqlalchemy/orm/state.py", line 482, in _initialize_instance
+    manager.dispatch.init_failure(self, args, kwargs)
+  File "/home/victor/.pyenv/versions/3.8.13/lib/python3.8/site-packages/sqlalchemy/util/langhelpers.py", line 70, in __exit__
+    compat.raise_(
+  File "/home/victor/.pyenv/versions/3.8.13/lib/python3.8/site-packages/sqlalchemy/util/compat.py", line 211, in raise_
+    raise exception
+  File "/home/victor/.pyenv/versions/3.8.13/lib/python3.8/site-packages/sqlalchemy/orm/state.py", line 479, in _initialize_instance
+    return manager.original_init(*mixed[1:], **kwargs)
+  File "/home/victor/.pyenv/versions/3.8.13/lib/python3.8/site-packages/sqlalchemy/orm/decl_base.py", line 1197, in _declarative_constructor
+    raise TypeError(
+TypeError: 'first_name' is an invalid keyword argument for User
+2025-05-04 23:58:43,918 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-04 23:58:43,918 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-04 23:58:43,919 [INFO] [customer-support-service] - CORS configured
+2025-05-04 23:58:43,944 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-04 23:58:43,988 [INFO] [customer-support-service] - Database tables created successfully
+2025-05-04 23:58:43,989 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-04 23:59:05,976 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-04 23:59:05,977 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-04 23:59:05,977 [INFO] [customer-support-service] - CORS configured
+2025-05-04 23:59:06,001 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-04 23:59:06,039 [INFO] [customer-support-service] - Database tables created successfully
+2025-05-04 23:59:06,040 [INFO] [customer-support-service] - Customer Support Service initialization complete
