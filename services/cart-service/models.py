@@ -41,7 +41,21 @@ class Order(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     total = db.Column(db.Float)
+    subtotal = db.Column(db.Float)
+    discount = db.Column(db.Float, default=0.0)
+    shipping_fee = db.Column(db.Float, default=0.0)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Shipping and payment details
+    shipping_address = db.Column(db.String(200))
+    shipping_city = db.Column(db.String(100))
+    shipping_country = db.Column(db.String(100))
+    shipping_postal_code = db.Column(db.String(20))
+    
+    payment_method = db.Column(db.String(50))
+    payment_status = db.Column(db.String(50), default='pending')
+    
+    status = db.Column(db.String(50), default='pending')
 
     user = db.relationship('User', back_populates='orders')
     items = db.relationship('OrderItem', back_populates='order')
