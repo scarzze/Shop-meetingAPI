@@ -7,7 +7,8 @@ from email.mime.text import MIMEText
 from dotenv import load_dotenv
 import os
 from models import db, Order, OrderItem, ReturnRequest
-from auth_middleware import auth_required, admin_required
+from utils.auth_utils import auth_required, admin_required
+from utils.user_sync import sync_user_from_auth
 
 def create_app(test_config=None):
     app = Flask(__name__)
@@ -82,28 +83,84 @@ def create_app(test_config=None):
     @auth_required
     def get_order_history(user_id):
         """Get order history for a specific user"""
-        # Verify user is accessing their own orders
-        if user_id != request.user['id']:
+        # Add security check to ensure users can only access their own orders
+        current_user = request.user
+        if current_user.get('id') != user_id and not current_user.get('is_admin', False):
             return jsonify({"error": "Unauthorized access"}), 403
+        
+        # Sync user data to ensure user exists in database
+        sync_user_from_auth(current_user)
+        
+        # If DEBUG_MODE is enabled, return mock order data
+        debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+        if debug_mode:
+            # Return mock order data for testing
+            mock_orders = [
+                {
+                    'id': 1,
+                    'order_date': '2025-05-01T10:30:00',
+                    'total_amount': 150.00,
+                    'status': 'Delivered',
+                    'items': [
+                        {
+                            'id': 1,
+                            'product_id': 101,
+                            'product_name': 'Wireless Mouse',
+                            'quantity': 1,
+                            'price': 25.00
+                        },
+                        {
+                            'id': 2,
+                            'product_id': 102,
+                            'product_name': 'Mechanical Keyboard',
+                            'quantity': 1,
+                            'price': 125.00
+                        }
+                    ]
+                },
+                {
+                    'id': 2,
+                    'order_date': '2025-04-25T14:15:00',
+                    'total_amount': 75.50,
+                    'status': 'Processing',
+                    'items': [
+                        {
+                            'id': 3,
+                            'product_id': 103,
+                            'product_name': 'USB-C Cable',
+                            'quantity': 3,
+                            'price': 15.00
+                        }
+                    ]
+                }
+            ]
+            return jsonify(mock_orders)
+        
+        try:
+            # Get all orders for the user
+            orders = Order.query.filter_by(user_id=user_id).order_by(Order.order_date.desc()).all()
             
-        orders = Order.query.filter_by(user_id=user_id).order_by(Order.order_date.desc()).all()
-        
-        order_list = []
-        for order in orders:
-            order_data = {
-                'order_id': order.id,
-                'order_date': order.order_date.isoformat(),
-                'total_amount': order.total_amount,
-                'status': order.status,
-                'items': [{
-                    'product_id': item.product_id,
-                    'quantity': item.quantity,
-                    'price': item.price
-                } for item in order.items]
-            }
-            order_list.append(order_data)
-        
-        return jsonify({'orders': order_list}), 200
+            # Convert orders to dict format
+            order_list = []
+            for order in orders:
+                order_dict = {
+                    'id': order.id,
+                    'order_date': order.order_date.isoformat(),
+                    'total_amount': float(order.total_amount),
+                    'status': order.status,
+                    'items': [{
+                        'id': item.id,
+                        'product_id': item.product_id,
+                        'product_name': item.product_name,
+                        'quantity': item.quantity,
+                        'price': float(item.price)
+                    } for item in order.items]
+                }
+                order_list.append(order_dict)
+                
+            return jsonify(order_list)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
     @app.route('/orders/<string:order_id>', methods=['GET'])
     @auth_required
