@@ -9,6 +9,7 @@ from utils.auth_utils import auth_required
 from error_handlers import register_error_handlers
 from utils.logging_utils import cart_logger as logger
 from utils.user_sync import sync_user_from_auth
+from utils.service_utils import call_service
 
 app = Flask(__name__)
 CORS(app)
@@ -143,9 +144,12 @@ def add_to_cart():
     sync_user_from_auth(request.user)
 
     try:
-        product = Product.query.get(data['product_id'])
+        # Fetch product details from product-service
+        product_service_url = os.getenv('PRODUCT_SERVICE_URL', 'http://localhost:5006')
+        product = call_service(product_service_url, f"/api/products/{data['product_id']}")
+
         if not product:
-            logger.warning(f"Product {data['product_id']} not found")
+            logger.warning(f"Product {data['product_id']} not found in product-service")
             return jsonify({'error': 'Product not found'}), 404
 
         item = CartItem.query.filter_by(user_id=user_id, product_id=data['product_id']).first()

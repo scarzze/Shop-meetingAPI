@@ -9,6 +9,7 @@ import os
 from models import db, Order, OrderItem, ReturnRequest
 from utils.auth_utils import auth_required, admin_required
 from utils.user_sync import sync_user_from_auth
+from utils.service_utils import call_service
 
 def create_app(test_config=None):
     app = Flask(__name__)
@@ -275,6 +276,63 @@ def create_app(test_config=None):
             return jsonify({'error': f'Database error: {str(e)}'}), 500
         
         return jsonify({'message': 'Order cancelled successfully'}), 200
+
+    @app.route('/orders', methods=['POST'])
+    @auth_required
+    def create_order():
+        data = request.get_json()
+        if not data or 'items' not in data:
+            return jsonify({'error': 'Missing required fields'}), 400
+
+        user_id = request.user['id']
+        items = data['items']
+        total_amount = 0
+        order_items = []
+
+        product_service_url = os.getenv('PRODUCT_SERVICE_URL')
+
+        for item in items:
+            product_id = item.get('product_id')
+            quantity = item.get('quantity', 1)
+
+            # Fetch product details from product-service
+            product = call_service(product_service_url, f"/api/products/{product_id}")
+
+            if not product:
+                return jsonify({'error': f'Product with ID {product_id} not found'}), 404
+
+            if product['stock_quantity'] < quantity:
+                return jsonify({'error': f'Insufficient stock for product ID {product_id}'}), 400
+
+            total_amount += product['price'] * quantity
+            order_items.append({
+                'product_id': product_id,
+                'product_name': product['name'],
+                'quantity': quantity,
+                'price': product['price']
+            })
+
+        # Create the order
+        order = Order(user_id=user_id, total_amount=total_amount, status='Processing')
+        db.session.add(order)
+        db.session.flush()
+
+        for item in order_items:
+            order_item = OrderItem(
+                order_id=order.id,
+                product_id=item['product_id'],
+                product_name=item['product_name'],
+                quantity=item['quantity'],
+                price=item['price']
+            )
+            db.session.add(order_item)
+
+        try:
+            db.session.commit()
+            return jsonify({'message': 'Order created successfully', 'order_id': order.id}), 201
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({'error': f'Failed to create order: {str(e)}'}), 500
 
     @app.route('/returns', methods=['POST'])
     @auth_required
