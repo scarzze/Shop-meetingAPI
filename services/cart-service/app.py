@@ -31,7 +31,7 @@ CORS(app, resources={
     }
 })
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://BL4CK:Oversea838@localhost/customer_support')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
 
@@ -262,6 +262,50 @@ def checkout():
             })
         else:
             return jsonify({'error': f'Database error: {str(e)}'}), 500
+
+# Logic for calculating taxes, discounts, shipping costs, and generating order summaries
+
+def calculate_order_summary(cart_items):
+    subtotal = sum(item['subtotal'] for item in cart_items)
+    tax_rate = float(os.getenv('TAX_RATE', 0.1))  # Default tax rate is 10%
+    discount_rate = float(os.getenv('DISCOUNT_RATE', 0.05))  # Default discount rate is 5%
+    shipping_cost = float(os.getenv('SHIPPING_COST', 10.0))  # Default shipping cost is $10
+
+    tax = subtotal * tax_rate
+    discount = subtotal * discount_rate
+    total = subtotal + tax - discount + shipping_cost
+
+    return {
+        'subtotal': subtotal,
+        'tax': tax,
+        'discount': discount,
+        'shipping_cost': shipping_cost,
+        'total': total
+    }
+
+@app.route('/cart/summary', methods=['GET'])
+def get_cart_summary():
+    user_id = request.user['id']
+    logger.debug(f"Generating order summary for user {user_id}")
+
+    sync_user_from_auth(request.user)
+
+    try:
+        items = CartItem.query.filter_by(user_id=user_id).all()
+        cart = [{
+            'product_id': item.product.id,
+            'name': item.product.name,
+            'price': item.product.price,
+            'quantity': item.quantity,
+            'subtotal': item.quantity * item.product.price
+        } for item in items]
+
+        order_summary = calculate_order_summary(cart)
+        logger.info(f"Successfully generated order summary for user {user_id}")
+        return jsonify({'cart': cart, 'order_summary': order_summary})
+    except Exception as e:
+        logger.error(f"Error generating order summary: {str(e)}")
+        return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 if __name__ == '__main__':
     debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
