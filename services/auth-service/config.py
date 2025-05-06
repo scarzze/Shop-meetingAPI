@@ -6,7 +6,7 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your_super_secret_jwt_key')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://hosea:moringa001@localhost:5432/shop_meeting_db')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'your_super_secret_jwt_key')
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
