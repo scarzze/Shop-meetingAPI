@@ -17,6 +17,30 @@ def get_profile():
     user_id = request.user['id']
     logger.info(f"Getting profile for user_id: {user_id}")
     
+    # Check if DEBUG_MODE is enabled
+    debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+    
+    # In DEBUG_MODE, always return mock profile data
+    if debug_mode:
+        mock_profile = {
+            "id": 1,
+            "user_id": str(user_id),
+            "first_name": request.user.get('first_name', 'Test'),
+            "last_name": request.user.get('last_name', 'User'),
+            "email": request.user.get('email', 'testuser@example.com'),
+            "phone": "+1234567890",
+            "bio": "This is a mock profile for testing",
+            "avatar_url": "https://example.com/avatar.jpg",
+            "preferences": {
+                "theme": "dark",
+                "notifications": True,
+                "language": "en"
+            }
+        }
+        logger.info(f"Returning mock profile for user_id: {user_id} in DEBUG_MODE")
+        return jsonify(mock_profile), 200
+    
+    # Not in DEBUG_MODE - use database
     try:
         # Synchronize profile from Auth Service
         profile = sync_profile_from_auth(request.user)
@@ -30,7 +54,7 @@ def get_profile():
     except SQLAlchemyError as e:
         db.session.rollback()
         logger.error(f"Database error in get_profile: {str(e)}")
-        # Provide mock data in production if database fails
+        # Provide mock data if database fails
         mock_profile = {
             "id": 1,
             "user_id": str(user_id),
@@ -124,7 +148,31 @@ def get_preferences():
 def update_preferences():
     """Update user preferences"""
     user_id = request.user['id']
+    logger.info(f"Updating preferences for user_id: {user_id}")
     
+    # Check if DEBUG_MODE is enabled
+    debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+    
+    # In DEBUG_MODE, return mock updated preferences
+    if debug_mode:
+        # Get the update data from the request
+        data = request.get_json()
+        if not data:
+            return jsonify({"error": "No data provided"}), 400
+            
+        # Construct updated preferences (for demonstration)
+        updated_preferences = {
+            'preferred_price_range': {
+                'min': 0,
+                'max': 1000
+            },
+            'favorite_categories': data.get('favorite_categories', ['Electronics', 'Books'])
+        }
+        
+        logger.info(f"Updated mock preferences in DEBUG_MODE for user_id: {user_id}")
+        return jsonify(updated_preferences), 200
+    
+    # Not in DEBUG_MODE - use database
     try:
         # Synchronize profile from Auth Service
         profile = sync_profile_from_auth(request.user)

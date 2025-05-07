@@ -3,7 +3,7 @@ from ..models import Review, Product, db
 from ..auth.middleware import auth_required
 from ..utils.validators import validate_review_data
 from sqlalchemy.exc import SQLAlchemyError
-from shared.utils.pagination import PaginationHelper
+from app.shared.utils.pagination import PaginationHelper
 import logging
 
 bp = Blueprint('review', __name__, url_prefix='/api/reviews')
@@ -14,6 +14,133 @@ def get_product_reviews(product_id):
     """Get all reviews for a product with pagination"""
     logger.info(f"Getting reviews for product ID: {product_id}")
     
+    # Check if DEBUG_MODE is enabled
+    import os
+    debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+    
+    if debug_mode:
+        # In DEBUG_MODE, return mock review data with pagination
+        logger.info(f"DEBUG_MODE: Returning mock review data for product ID: {product_id}")
+        
+        # Create mock reviews for various products
+        mock_reviews = {
+            1: [  # Reviews for product ID 1 (Premium Headphones)
+                {
+                    "id": 101,
+                    "product_id": 1,
+                    "user_id": 201,
+                    "username": "audiophile89",
+                    "rating": 5,
+                    "comment": "Best headphones I've ever owned! The sound quality is exceptional and the noise cancellation works perfectly.",
+                    "created_at": "2025-04-20T14:30:00",
+                    "updated_at": "2025-04-20T14:30:00"
+                },
+                {
+                    "id": 102,
+                    "product_id": 1,
+                    "user_id": 202,
+                    "username": "musiclover42",
+                    "rating": 4,
+                    "comment": "Great headphones, very comfortable to wear for hours. Battery life could be better though.",
+                    "created_at": "2025-04-15T09:45:00",
+                    "updated_at": "2025-04-15T09:45:00"
+                },
+                {
+                    "id": 103,
+                    "product_id": 1,
+                    "user_id": 203,
+                    "username": "basshead77",
+                    "rating": 5,
+                    "comment": "The bass response is incredible! These headphones handle every genre of music beautifully.",
+                    "created_at": "2025-04-10T16:20:00",
+                    "updated_at": "2025-04-10T16:20:00"
+                }
+            ],
+            2: [  # Reviews for product ID 2 (Ergonomic Office Chair)
+                {
+                    "id": 104,
+                    "product_id": 2,
+                    "user_id": 204,
+                    "username": "remoteworker23",
+                    "rating": 5,
+                    "comment": "This chair saved my back! After switching to this, my back pain disappeared within a week.",
+                    "created_at": "2025-04-18T11:10:00",
+                    "updated_at": "2025-04-18T11:10:00"
+                },
+                {
+                    "id": 105,
+                    "product_id": 2,
+                    "user_id": 205,
+                    "username": "ergonomicsexpert",
+                    "rating": 4,
+                    "comment": "Great chair with excellent lumbar support. The armrests could use more padding though.",
+                    "created_at": "2025-04-12T13:35:00",
+                    "updated_at": "2025-04-12T13:35:00"
+                }
+            ],
+            3: [  # Reviews for product ID 3 (Ultra-Slim Laptop)
+                {
+                    "id": 106,
+                    "product_id": 3,
+                    "user_id": 206,
+                    "username": "techreviewerguy",
+                    "rating": 5,
+                    "comment": "Blazing fast performance in an incredibly slim package. The battery life exceeds expectations!",
+                    "created_at": "2025-04-22T10:25:00",
+                    "updated_at": "2025-04-22T10:25:00"
+                },
+                {
+                    "id": 107,
+                    "product_id": 3,
+                    "user_id": 207,
+                    "username": "codingprofessional",
+                    "rating": 5,
+                    "comment": "Perfect for development work. Handles multiple VMs and docker containers without breaking a sweat.",
+                    "created_at": "2025-04-17T15:40:00",
+                    "updated_at": "2025-04-17T15:40:00"
+                },
+                {
+                    "id": 108,
+                    "product_id": 3,
+                    "user_id": 208,
+                    "username": "designernomad",
+                    "rating": 4,
+                    "comment": "Great for graphic design work on the go. The display is gorgeous but it can get a bit hot under heavy loads.",
+                    "created_at": "2025-04-05T09:15:00",
+                    "updated_at": "2025-04-05T09:15:00"
+                }
+            ]
+        }
+        
+        # Default to an empty list if product_id doesn't exist in our mock data
+        reviews_for_product = mock_reviews.get(product_id, [])
+        
+        # Get pagination parameters
+        page, per_page = PaginationHelper.get_pagination_params()
+        
+        # Apply pagination to mock data
+        total_items = len(reviews_for_product)
+        total_pages = (total_items + per_page - 1) // per_page if per_page > 0 else 1
+        start_idx = (page - 1) * per_page
+        end_idx = min(start_idx + per_page, total_items)
+        paginated_reviews = reviews_for_product[start_idx:end_idx] if start_idx < total_items else []
+        
+        # Format the response similar to the standard pagination format
+        result = {
+            "items": paginated_reviews,
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total_items": total_items,
+                "total_pages": total_pages,
+                "has_next": page < total_pages,
+                "has_prev": page > 1
+            }
+        }
+        
+        return jsonify(result), 200
+    
+    # Normal database operation if not in DEBUG_MODE
     try:
         # Check if product exists
         product = Product.query.get(product_id)
@@ -39,6 +166,106 @@ def get_review(review_id):
     """Get review by ID"""
     logger.info(f"Getting review with ID: {review_id}")
     
+    # Check if DEBUG_MODE is enabled
+    import os
+    debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+    
+    if debug_mode:
+        # In DEBUG_MODE, return mock review data based on review_id
+        logger.info(f"DEBUG_MODE: Returning mock data for review ID: {review_id}")
+        
+        # Create a dictionary of mock reviews to simulate a database
+        mock_reviews = {
+            101: {
+                "id": 101,
+                "product_id": 1,
+                "user_id": 201,
+                "username": "audiophile89",
+                "rating": 5,
+                "comment": "Best headphones I've ever owned! The sound quality is exceptional and the noise cancellation works perfectly.",
+                "created_at": "2025-04-20T14:30:00",
+                "updated_at": "2025-04-20T14:30:00"
+            },
+            102: {
+                "id": 102,
+                "product_id": 1,
+                "user_id": 202,
+                "username": "musiclover42",
+                "rating": 4,
+                "comment": "Great headphones, very comfortable to wear for hours. Battery life could be better though.",
+                "created_at": "2025-04-15T09:45:00",
+                "updated_at": "2025-04-15T09:45:00"
+            },
+            103: {
+                "id": 103,
+                "product_id": 1,
+                "user_id": 203,
+                "username": "basshead77",
+                "rating": 5,
+                "comment": "The bass response is incredible! These headphones handle every genre of music beautifully.",
+                "created_at": "2025-04-10T16:20:00",
+                "updated_at": "2025-04-10T16:20:00"
+            },
+            104: {
+                "id": 104,
+                "product_id": 2,
+                "user_id": 204,
+                "username": "remoteworker23",
+                "rating": 5,
+                "comment": "This chair saved my back! After switching to this, my back pain disappeared within a week.",
+                "created_at": "2025-04-18T11:10:00",
+                "updated_at": "2025-04-18T11:10:00"
+            },
+            105: {
+                "id": 105,
+                "product_id": 2,
+                "user_id": 205,
+                "username": "ergonomicsexpert",
+                "rating": 4,
+                "comment": "Great chair with excellent lumbar support. The armrests could use more padding though.",
+                "created_at": "2025-04-12T13:35:00",
+                "updated_at": "2025-04-12T13:35:00"
+            },
+            106: {
+                "id": 106,
+                "product_id": 3,
+                "user_id": 206,
+                "username": "techreviewerguy",
+                "rating": 5,
+                "comment": "Blazing fast performance in an incredibly slim package. The battery life exceeds expectations!",
+                "created_at": "2025-04-22T10:25:00",
+                "updated_at": "2025-04-22T10:25:00"
+            },
+            107: {
+                "id": 107,
+                "product_id": 3,
+                "user_id": 207,
+                "username": "codingprofessional",
+                "rating": 5,
+                "comment": "Perfect for development work. Handles multiple VMs and docker containers without breaking a sweat.",
+                "created_at": "2025-04-17T15:40:00",
+                "updated_at": "2025-04-17T15:40:00"
+            },
+            108: {
+                "id": 108,
+                "product_id": 3,
+                "user_id": 208,
+                "username": "designernomad",
+                "rating": 4,
+                "comment": "Great for graphic design work on the go. The display is gorgeous but it can get a bit hot under heavy loads.",
+                "created_at": "2025-04-05T09:15:00",
+                "updated_at": "2025-04-05T09:15:00"
+            }
+        }
+        
+        # Return the requested review or a 404 if not found
+        if review_id in mock_reviews:
+            return jsonify(mock_reviews[review_id]), 200
+        else:
+            logger.warning(f"DEBUG_MODE: Mock review not found with ID: {review_id}")
+            return jsonify({"error": "Review not found"}), 404
+    
+    # Normal database operation if not in DEBUG_MODE
     try:
         review = Review.query.get(review_id)
         

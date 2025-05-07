@@ -34,7 +34,7 @@ CORS(app, resources={
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.json.compact = False
+# app.json.compact = False  # Removed due to compatibility issues with Flask version
 
 logger.info("Configured database connection")
 migrate = Migrate(app, db)
@@ -56,14 +56,42 @@ def index():
     return jsonify({'message': 'Welcome to the Shopping Cart API!'})
 
 @app.route('/cart', methods=['GET'])
+@auth_required
 def get_all_cart_items():
     user_id = request.user['id']
     logger.debug(f"Getting all cart items for user {user_id}")
     debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
 
-    sync_user_from_auth(request.user)
+    # In DEBUG_MODE, immediately return mock data without database operations
+    if debug_mode:
+        logger.warning("Using mock data in debug mode for cart items")
+        # Mock cart data for testing
+        mock_cart = [
+            {
+                'id': 1,
+                'product_id': 101,
+                'product_name': 'Smartphone XYZ',
+                'price': 699.99,
+                'quantity': 1,
+                'subtotal': 699.99
+            },
+            {
+                'id': 2,
+                'product_id': 102,
+                'product_name': 'Wireless Headphones',
+                'price': 149.99,
+                'quantity': 2,
+                'subtotal': 299.98
+            }
+        ]
+        return jsonify({'cart_items': mock_cart})
 
+    # Not in DEBUG_MODE - attempt to use database
     try:
+        # Sync user data from Auth Service
+        sync_user_from_auth(request.user)
+        
+        # Query database for cart items
         items = CartItem.query.filter_by(user_id=user_id).all()
         cart = []
         for item in items:
@@ -79,12 +107,7 @@ def get_all_cart_items():
         return jsonify({'cart_items': cart})
     except Exception as e:
         logger.error(f"Error retrieving cart items: {str(e)}")
-        if debug_mode:
-            logger.warning("Using mock data in debug mode")
-            mock_cart = []
-            return jsonify({'cart_items': mock_cart})
-        else:
-            return jsonify({'error': f'Database error: {str(e)}'}), 500
+        return jsonify({'error': 'Could not retrieve cart items'}), 500
 
 @app.route('/cart/<int:user_id>', methods=['GET'])
 def get_cart(user_id):
@@ -131,6 +154,7 @@ def get_cart(user_id):
             return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 @app.route('/cart/add', methods=['POST'])
+@auth_required
 def add_to_cart():
     data = request.get_json()
     if not data or 'product_id' not in data:
@@ -140,10 +164,28 @@ def add_to_cart():
     user_id = request.user['id']
     logger.debug(f"Adding item to cart for user {user_id}: product_id={data['product_id']}")
     debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
-
-    sync_user_from_auth(request.user)
-
+    
+    # In DEBUG_MODE, return mock response without database operations
+    if debug_mode:
+        logger.warning("Using mock data in debug mode for add_to_cart")
+        # Mock successful add response
+        mock_response = {
+            'success': True,
+            'message': 'Item added to cart',
+            'product': {
+                'id': data['product_id'],
+                'name': f"Product {data['product_id']}",
+                'price': 49.99,
+                'quantity': data.get('quantity', 1)
+            }
+        }
+        return jsonify(mock_response), 201
+        
+    # Not in DEBUG_MODE - proceed with database operations
     try:
+        # Sync user from auth service
+        sync_user_from_auth(request.user)
+        
         # Fetch product details from product-service
         product_service_url = os.getenv('PRODUCT_SERVICE_URL', 'http://localhost:5006')
         product = call_service(product_service_url, f"/api/products/{data['product_id']}")
@@ -173,11 +215,32 @@ def add_to_cart():
             return jsonify({'error': f'Database error: {str(e)}'}), 500
 
 @app.route('/cart/update', methods=['PATCH'])
+@auth_required
 def update_cart():
     data = request.get_json()
     if not data or 'product_id' not in data:
         logger.warning("Missing required fields in update_cart request")
         return jsonify({'error': 'Missing required fields'}), 400
+        
+    user_id = request.user['id']
+    debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+    
+    # In DEBUG_MODE, return mock response without database operations
+    if debug_mode:
+        logger.warning("Using mock data in debug mode for update_cart")
+        # Mock successful update response
+        mock_response = {
+            'success': True,
+            'message': 'Cart updated successfully',
+            'updated_item': {
+                'product_id': data['product_id'],
+                'quantity': data.get('quantity', 1),
+                'name': f"Product {data['product_id']}",
+                'price': 49.99,
+                'subtotal': 49.99 * data.get('quantity', 1)
+            }
+        }
+        return jsonify(mock_response), 200
 
     user_id = request.user['id']
     logger.debug(f"Updating cart for user {user_id}: product_id={data['product_id']}")
@@ -225,10 +288,40 @@ def checkout():
     user_id = request.user['id']
     logger.debug(f"Processing checkout for user {user_id}")
     debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
-
-    sync_user_from_auth(request.user)
-
+    
+    # In DEBUG_MODE, return mock response without database operations
+    if debug_mode:
+        logger.warning("Using mock response in debug mode for checkout")
+        # Generate mock order details
+        mock_order_id = 12345
+        mock_total = 199.99
+        mock_items = [
+            {
+                'product_id': 101,
+                'product_name': 'Smartphone XYZ',
+                'quantity': 1,
+                'price': 699.99,
+                'subtotal': 699.99
+            },
+            {
+                'product_id': 102,
+                'product_name': 'Wireless Headphones',
+                'quantity': 2,
+                'price': 149.99,
+                'subtotal': 299.98
+            }
+        ]
+        return jsonify({
+            'success': True,
+            'message': 'Order placed successfully', 
+            'order_id': mock_order_id,
+            'total': mock_total,
+            'items': mock_items
+        }), 201
+    
+    # Not in DEBUG_MODE - proceed with database operations
     try:
+        sync_user_from_auth(request.user)
         cart_items = CartItem.query.filter_by(user_id=user_id).all()
         if not cart_items:
             logger.warning(f"Checkout attempted with empty cart: user_id={user_id}")

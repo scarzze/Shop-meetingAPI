@@ -4,8 +4,8 @@ from ..auth.middleware import auth_required
 from ..utils.validators import validate_product_data
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy import or_, and_, func
-from shared.utils.pagination import PaginationHelper
-from shared.utils.cloudinary_utils import cloudinary_uploader
+from app.shared.utils.pagination import PaginationHelper
+# from app.shared.utils.cloudinary_utils import cloudinary_uploader  # Commented out until we implement this
 import logging
 
 bp = Blueprint('product', __name__, url_prefix='/api/products')
@@ -18,16 +18,185 @@ def get_products():
     """
     logger.info("Getting products with filters")
     
-    try:
-        # Get pagination parameters
-        page, per_page = PaginationHelper.get_pagination_params()
-        sort_by = request.args.get('sort', 'id')
-        order = request.args.get('order', 'asc')
-        search = request.args.get('search', '')
-        category_name = request.args.get('category', '')
-        min_price = request.args.get('min_price', None, type=float)
-        max_price = request.args.get('max_price', None, type=float)
+    # Check if DEBUG_MODE is enabled
+    import os
+    debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+    
+    # Get pagination parameters
+    page, per_page = PaginationHelper.get_pagination_params()
+    sort_by = request.args.get('sort', 'id')
+    order = request.args.get('order', 'asc')
+    search = request.args.get('search', '')
+    category_name = request.args.get('category', '')
+    min_price = request.args.get('min_price', None, type=float)
+    max_price = request.args.get('max_price', None, type=float)
+    
+    if debug_mode:
+        # In DEBUG_MODE, return mock product data with filtering and pagination
+        logger.info("DEBUG_MODE: Returning mock product data with filters")
         
+        # Create mock products list
+        mock_products = [
+            {
+                "id": 1,
+                "name": "Premium Headphones",
+                "description": "High-quality noise-cancelling headphones with superior sound",
+                "price": 299.99,
+                "stock": 50,
+                "category_id": 1,
+                "category_name": "Electronics",
+                "image_url": "https://example.com/images/headphones.jpg",
+                "avg_rating": 4.7,
+                "created_at": "2025-01-15T10:30:00",
+                "updated_at": "2025-05-01T14:45:00"
+            },
+            {
+                "id": 2,
+                "name": "Ergonomic Office Chair",
+                "description": "Comfortable ergonomic chair with lumbar support and adjustable height",
+                "price": 249.99,
+                "stock": 35,
+                "category_id": 2,
+                "category_name": "Furniture",
+                "image_url": "https://example.com/images/chair.jpg",
+                "avg_rating": 4.5,
+                "created_at": "2025-02-10T09:15:00",
+                "updated_at": "2025-04-20T11:30:00"
+            },
+            {
+                "id": 3,
+                "name": "Ultra-Slim Laptop",
+                "description": "Powerful and lightweight laptop with 16GB RAM and 1TB SSD",
+                "price": 1299.99,
+                "stock": 20,
+                "category_id": 1,
+                "category_name": "Electronics",
+                "image_url": "https://example.com/images/laptop.jpg",
+                "avg_rating": 4.8,
+                "created_at": "2025-01-20T13:45:00",
+                "updated_at": "2025-04-15T10:20:00"
+            },
+            {
+                "id": 4,
+                "name": "Wireless Charging Pad",
+                "description": "Fast wireless charging pad compatible with all Qi-enabled devices",
+                "price": 49.99,
+                "stock": 100,
+                "category_id": 1,
+                "category_name": "Electronics",
+                "image_url": "https://example.com/images/charger.jpg",
+                "avg_rating": 4.3,
+                "created_at": "2025-03-05T16:20:00",
+                "updated_at": "2025-05-02T09:10:00"
+            },
+            {
+                "id": 5,
+                "name": "Smart Home Hub",
+                "description": "Central control for all your smart home devices with voice commands",
+                "price": 129.99,
+                "stock": 45,
+                "category_id": 1,
+                "category_name": "Electronics",
+                "image_url": "https://example.com/images/smarthub.jpg",
+                "avg_rating": 4.6,
+                "created_at": "2025-02-25T11:00:00",
+                "updated_at": "2025-04-30T15:45:00"
+            },
+            {
+                "id": 6,
+                "name": "Stainless Steel Water Bottle",
+                "description": "Vacuum insulated water bottle that keeps drinks cold for 24 hours or hot for 12 hours",
+                "price": 34.99,
+                "stock": 150,
+                "category_id": 3,
+                "category_name": "Kitchen",
+                "image_url": "https://example.com/images/bottle.jpg",
+                "avg_rating": 4.9,
+                "created_at": "2025-03-10T08:20:00",
+                "updated_at": "2025-05-01T12:30:00"
+            },
+            {
+                "id": 7,
+                "name": "Fitness Tracker",
+                "description": "Water-resistant fitness tracker with heart rate monitoring and sleep tracking",
+                "price": 89.99,
+                "stock": 75,
+                "category_id": 4,
+                "category_name": "Fitness",
+                "image_url": "https://example.com/images/tracker.jpg",
+                "avg_rating": 4.4,
+                "created_at": "2025-02-05T14:10:00",
+                "updated_at": "2025-04-25T09:40:00"
+            },
+            {
+                "id": 8,
+                "name": "LED Desk Lamp",
+                "description": "Adjustable LED desk lamp with multiple brightness levels and color temperatures",
+                "price": 59.99,
+                "stock": 60,
+                "category_id": 2,
+                "category_name": "Furniture",
+                "image_url": "https://example.com/images/lamp.jpg",
+                "avg_rating": 4.6,
+                "created_at": "2025-01-30T11:25:00",
+                "updated_at": "2025-04-10T15:50:00"
+            }
+        ]
+        
+        # Apply filters to mock data
+        filtered_products = mock_products.copy()
+        
+        # Filter by category
+        if category_name:
+            filtered_products = [p for p in filtered_products if p["category_name"].lower() == category_name.lower()]
+        
+        # Filter by search term
+        if search:
+            search = search.lower()
+            filtered_products = [p for p in filtered_products if 
+                               search in p["name"].lower() or 
+                               search in p["description"].lower()]
+        
+        # Filter by price range
+        if min_price is not None:
+            filtered_products = [p for p in filtered_products if p["price"] >= min_price]
+            
+        if max_price is not None:
+            filtered_products = [p for p in filtered_products if p["price"] <= max_price]
+        
+        # Apply sorting
+        reverse_order = order.lower() != 'asc'
+        if sort_by == 'price':
+            filtered_products.sort(key=lambda x: x["price"], reverse=reverse_order)
+        elif sort_by == 'name':
+            filtered_products.sort(key=lambda x: x["name"], reverse=reverse_order)
+        else:  # Default to id
+            filtered_products.sort(key=lambda x: x["id"], reverse=reverse_order)
+        
+        # Apply pagination
+        total_items = len(filtered_products)
+        total_pages = (total_items + per_page - 1) // per_page if per_page > 0 else 1
+        start_idx = (page - 1) * per_page
+        end_idx = min(start_idx + per_page, total_items)
+        paginated_products = filtered_products[start_idx:end_idx] if start_idx < total_items else []
+        
+        # Format the response similar to the standard pagination format
+        result = {
+            "items": paginated_products,
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total_items": total_items,
+                "total_pages": total_pages,
+                "has_next": page < total_pages,
+                "has_prev": page > 1
+            }
+        }
+        
+        return jsonify(result), 200
+    
+    # Normal database operation if not in DEBUG_MODE
+    try:
         # Build query
         query = Product.query
         
@@ -71,6 +240,91 @@ def get_product(product_id):
     """Get product by ID"""
     logger.info(f"Getting product with ID: {product_id}")
     
+    # Check if DEBUG_MODE is enabled
+    import os
+    debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+    
+    if debug_mode:
+        # In DEBUG_MODE, return mock product data based on product_id
+        logger.info(f"DEBUG_MODE: Returning mock data for product ID: {product_id}")
+        
+        # Create a dictionary of mock products to simulate a database
+        mock_products = {
+            1: {
+                "id": 1,
+                "name": "Premium Headphones",
+                "description": "High-quality noise-cancelling headphones with superior sound",
+                "price": 299.99,
+                "stock": 50,
+                "category_id": 1,
+                "category_name": "Electronics",
+                "image_url": "https://example.com/images/headphones.jpg",
+                "avg_rating": 4.7,
+                "created_at": "2025-01-15T10:30:00",
+                "updated_at": "2025-05-01T14:45:00"
+            },
+            2: {
+                "id": 2,
+                "name": "Ergonomic Office Chair",
+                "description": "Comfortable ergonomic chair with lumbar support and adjustable height",
+                "price": 249.99,
+                "stock": 35,
+                "category_id": 2,
+                "category_name": "Furniture",
+                "image_url": "https://example.com/images/chair.jpg",
+                "avg_rating": 4.5,
+                "created_at": "2025-02-10T09:15:00",
+                "updated_at": "2025-04-20T11:30:00"
+            },
+            3: {
+                "id": 3,
+                "name": "Ultra-Slim Laptop",
+                "description": "Powerful and lightweight laptop with 16GB RAM and 1TB SSD",
+                "price": 1299.99,
+                "stock": 20,
+                "category_id": 1,
+                "category_name": "Electronics",
+                "image_url": "https://example.com/images/laptop.jpg",
+                "avg_rating": 4.8,
+                "created_at": "2025-01-20T13:45:00",
+                "updated_at": "2025-04-15T10:20:00"
+            },
+            4: {
+                "id": 4,
+                "name": "Wireless Charging Pad",
+                "description": "Fast wireless charging pad compatible with all Qi-enabled devices",
+                "price": 49.99,
+                "stock": 100,
+                "category_id": 1,
+                "category_name": "Electronics",
+                "image_url": "https://example.com/images/charger.jpg",
+                "avg_rating": 4.3,
+                "created_at": "2025-03-05T16:20:00",
+                "updated_at": "2025-05-02T09:10:00"
+            },
+            5: {
+                "id": 5,
+                "name": "Smart Home Hub",
+                "description": "Central control for all your smart home devices with voice commands",
+                "price": 129.99,
+                "stock": 45,
+                "category_id": 1,
+                "category_name": "Electronics",
+                "image_url": "https://example.com/images/smarthub.jpg",
+                "avg_rating": 4.6,
+                "created_at": "2025-02-25T11:00:00",
+                "updated_at": "2025-04-30T15:45:00"
+            }
+        }
+        
+        # Return the requested product or a 404 if not found
+        if product_id in mock_products:
+            return jsonify(mock_products[product_id]), 200
+        else:
+            logger.warning(f"DEBUG_MODE: Mock product not found with ID: {product_id}")
+            return jsonify({"error": "Product not found"}), 404
+    
+    # Normal database operation if not in DEBUG_MODE
     try:
         product = Product.query.get(product_id)
         

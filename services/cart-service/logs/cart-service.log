@@ -103,3 +103,268 @@ DETAIL:  Key (user_id)=(5) is not present in table "user".
 2025-05-05 10:49:27,228 - cart-service - INFO - Configured database connection
 2025-05-05 10:49:27,256 - cart-service - INFO - Registered error handlers
 2025-05-07 11:14:00,265 - cart-service - INFO - Starting Cart Service
+2025-05-07 12:35:36,231 - cart-service - INFO - Starting Cart Service
+2025-05-07 12:40:51,192 - cart-service - INFO - Starting Cart Service
+2025-05-07 12:40:51,234 - cart-service - INFO - Configured database connection
+2025-05-07 12:40:51,234 - cart-service - INFO - Registered error handlers
+2025-05-07 12:40:51,238 - cart-service - INFO - Starting server with debug=True
+2025-05-07 12:40:51,640 - cart-service - INFO - Starting Cart Service
+2025-05-07 12:40:51,641 - cart-service - INFO - Configured database connection
+2025-05-07 12:40:51,641 - cart-service - INFO - Registered error handlers
+2025-05-07 12:40:51,644 - cart-service - INFO - Starting server with debug=True
+2025-05-07 12:40:51,816 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:41:12,942 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:41:42,984 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:42:13,034 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:42:43,095 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:43:02,685 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:43:32,727 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:44:02,771 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:44:32,818 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:45:02,883 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:45:32,931 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:46:02,982 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:46:33,032 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:47:03,084 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:47:33,137 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:48:03,182 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:48:33,229 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:49:03,279 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:49:33,331 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:50:03,385 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:50:33,435 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:51:03,462 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:51:33,515 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:52:03,559 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:52:35,227 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:53:05,280 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:53:35,333 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:54:05,383 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:54:35,440 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:55:05,551 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:55:20,741 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:55:50,796 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:56:20,857 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:56:50,908 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:57:20,971 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:57:51,028 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:58:14,577 - cart-service - DEBUG - Index endpoint called
+2025-05-07 12:58:21,092 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:58:51,169 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:59:21,243 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 12:59:51,325 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 13:00:21,393 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 13:00:51,471 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 13:01:21,544 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 13:01:51,605 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 13:02:21,690 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 13:02:51,743 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 13:03:21,824 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 13:03:51,909 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 13:04:21,991 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 13:04:52,070 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:05:43,281 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:06:13,342 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:06:43,405 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:07:13,465 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:07:43,506 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:08:13,577 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:08:43,642 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:09:13,700 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:09:43,758 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:10:13,815 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:10:43,855 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:11:13,915 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:11:43,971 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:12:14,029 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:12:44,173 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:13:14,235 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:13:44,316 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:14:14,388 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:14:44,467 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:15:14,552 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:15:44,643 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:16:14,707 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:16:44,789 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:17:14,874 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:17:44,949 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:18:15,016 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:18:45,090 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:19:15,149 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:19:45,203 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:20:15,261 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:20:45,341 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:21:15,403 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:21:45,463 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:22:15,523 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:22:45,574 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:23:15,614 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:23:45,676 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:24:15,717 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:24:45,756 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:25:15,817 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:25:45,873 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:26:15,911 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:26:45,973 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:27:16,038 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:27:46,109 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:28:16,171 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:28:46,233 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:29:16,298 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:29:46,348 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:30:16,388 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:30:46,438 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:31:16,500 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:31:46,573 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:32:16,636 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:32:46,692 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:33:16,754 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:33:46,815 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:34:16,879 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:34:46,936 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:35:17,004 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:35:47,042 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:36:17,094 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:36:37,852 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:36:47,150 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:37:17,191 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:37:47,255 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:38:17,318 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:38:47,381 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:39:17,447 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:39:47,490 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:40:17,559 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:40:47,822 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:41:17,853 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:41:47,910 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:42:17,963 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:42:48,029 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:43:18,066 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:43:48,132 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:44:18,197 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:44:48,255 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:45:18,308 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:45:43,431 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:45:48,371 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:46:18,422 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:46:48,491 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:47:18,540 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:47:48,604 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:48:18,654 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:48:48,702 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:49:18,757 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:49:48,785 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:50:18,842 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:50:48,885 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:51:18,955 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:51:49,018 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:52:19,074 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:52:49,122 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:53:19,171 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:53:30,681 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:53:49,208 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:54:19,236 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:54:49,282 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:55:19,329 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:55:28,888 - cart-service - INFO - Starting Cart Service
+2025-05-07 14:55:28,889 - cart-service - INFO - Configured database connection
+2025-05-07 14:55:28,889 - cart-service - INFO - Registered error handlers
+2025-05-07 14:55:28,897 - cart-service - INFO - Starting server with debug=True
+2025-05-07 14:55:41,792 - cart-service - INFO - Starting Cart Service
+2025-05-07 14:55:41,792 - cart-service - INFO - Configured database connection
+2025-05-07 14:55:41,793 - cart-service - INFO - Registered error handlers
+2025-05-07 14:55:41,796 - cart-service - INFO - Starting server with debug=True
+2025-05-07 14:55:42,240 - cart-service - INFO - Starting Cart Service
+2025-05-07 14:55:42,240 - cart-service - INFO - Configured database connection
+2025-05-07 14:55:42,240 - cart-service - INFO - Registered error handlers
+2025-05-07 14:55:42,243 - cart-service - INFO - Starting server with debug=True
+2025-05-07 14:55:49,379 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:56:00,782 - cart-service - DEBUG - Getting all cart items for user 1
+2025-05-07 14:56:19,429 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:57:14,732 - cart-service - INFO - Starting Cart Service
+2025-05-07 14:57:14,732 - cart-service - INFO - Configured database connection
+2025-05-07 14:57:14,732 - cart-service - INFO - Registered error handlers
+2025-05-07 14:57:14,735 - cart-service - INFO - Starting server with debug=True
+2025-05-07 14:57:15,090 - cart-service - INFO - Starting Cart Service
+2025-05-07 14:57:15,091 - cart-service - INFO - Configured database connection
+2025-05-07 14:57:15,091 - cart-service - INFO - Registered error handlers
+2025-05-07 14:57:15,094 - cart-service - INFO - Starting server with debug=True
+2025-05-07 14:57:19,517 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:57:49,573 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:58:19,625 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:58:49,660 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 14:59:19,700 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:04:04,585 - cart-service - INFO - Starting Cart Service
+2025-05-07 15:04:04,599 - cart-service - INFO - Configured database connection
+2025-05-07 15:04:04,599 - cart-service - INFO - Registered error handlers
+2025-05-07 15:04:04,603 - cart-service - INFO - Starting server with debug=True
+2025-05-07 15:04:04,981 - cart-service - INFO - Starting Cart Service
+2025-05-07 15:04:04,981 - cart-service - INFO - Configured database connection
+2025-05-07 15:04:04,981 - cart-service - INFO - Registered error handlers
+2025-05-07 15:04:04,984 - cart-service - INFO - Starting server with debug=True
+2025-05-07 15:04:20,714 - cart-service - DEBUG - Getting all cart items for user 1
+2025-05-07 15:04:20,714 - cart-service - WARNING - Using mock data in debug mode for cart items
+2025-05-07 15:04:25,567 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:04:55,612 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:06:00,040 - cart-service - INFO - Starting Cart Service
+2025-05-07 15:06:00,040 - cart-service - INFO - Configured database connection
+2025-05-07 15:06:00,041 - cart-service - INFO - Registered error handlers
+2025-05-07 15:06:00,048 - cart-service - INFO - Starting server with debug=True
+2025-05-07 15:06:00,486 - cart-service - INFO - Starting Cart Service
+2025-05-07 15:06:00,486 - cart-service - INFO - Configured database connection
+2025-05-07 15:06:00,486 - cart-service - INFO - Registered error handlers
+2025-05-07 15:06:00,489 - cart-service - INFO - Starting server with debug=True
+2025-05-07 15:06:10,736 - cart-service - DEBUG - Adding item to cart for user 1: product_id=103
+2025-05-07 15:06:10,736 - cart-service - WARNING - Using mock data in debug mode for add_to_cart
+2025-05-07 15:06:25,716 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:06:28,346 - cart-service - INFO - Starting Cart Service
+2025-05-07 15:06:28,347 - cart-service - INFO - Configured database connection
+2025-05-07 15:06:28,347 - cart-service - INFO - Registered error handlers
+2025-05-07 15:06:28,350 - cart-service - INFO - Starting server with debug=True
+2025-05-07 15:06:38,399 - cart-service - INFO - Starting Cart Service
+2025-05-07 15:06:38,399 - cart-service - INFO - Configured database connection
+2025-05-07 15:06:38,399 - cart-service - INFO - Registered error handlers
+2025-05-07 15:06:38,403 - cart-service - INFO - Starting server with debug=True
+2025-05-07 15:06:38,842 - cart-service - INFO - Starting Cart Service
+2025-05-07 15:06:38,842 - cart-service - INFO - Configured database connection
+2025-05-07 15:06:38,842 - cart-service - INFO - Registered error handlers
+2025-05-07 15:06:38,845 - cart-service - INFO - Starting server with debug=True
+2025-05-07 15:06:54,955 - cart-service - WARNING - Using mock data in debug mode for update_cart
+2025-05-07 15:06:55,756 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:07:25,807 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:07:29,861 - cart-service - INFO - Starting Cart Service
+2025-05-07 15:07:29,861 - cart-service - INFO - Configured database connection
+2025-05-07 15:07:29,861 - cart-service - INFO - Registered error handlers
+2025-05-07 15:07:29,864 - cart-service - INFO - Starting server with debug=True
+2025-05-07 15:07:41,400 - cart-service - INFO - Starting Cart Service
+2025-05-07 15:07:41,400 - cart-service - INFO - Configured database connection
+2025-05-07 15:07:41,401 - cart-service - INFO - Registered error handlers
+2025-05-07 15:07:41,404 - cart-service - INFO - Starting server with debug=True
+2025-05-07 15:07:41,828 - cart-service - INFO - Starting Cart Service
+2025-05-07 15:07:41,828 - cart-service - INFO - Configured database connection
+2025-05-07 15:07:41,828 - cart-service - INFO - Registered error handlers
+2025-05-07 15:07:41,832 - cart-service - INFO - Starting server with debug=True
+2025-05-07 15:07:52,434 - cart-service - DEBUG - Processing checkout for user 1
+2025-05-07 15:07:52,435 - cart-service - WARNING - Using mock response in debug mode for checkout
+2025-05-07 15:07:55,861 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:08:25,909 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:08:55,976 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:09:26,029 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:09:56,081 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:10:26,134 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:10:56,205 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:11:26,262 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:11:56,327 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:12:26,395 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:12:56,462 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:13:26,585 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:13:56,749 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 15:14:26,813 - cart-service - DEBUG - Health check endpoint called
+2025-05-07 16:30:53,459 - cart-service - INFO - Starting Cart Service
+2025-05-07 16:30:53,459 - cart-service - INFO - Configured database connection
+2025-05-07 16:30:53,460 - cart-service - INFO - Registered error handlers
+2025-05-07 16:30:53,468 - cart-service - INFO - Starting server with debug=False
+2025-05-07 16:34:08,366 - cart-service - INFO - Starting Cart Service
+2025-05-07 16:34:08,366 - cart-service - INFO - Configured database connection
+2025-05-07 16:34:08,367 - cart-service - INFO - Registered error handlers
+2025-05-07 16:34:08,370 - cart-service - INFO - Starting server with debug=False
