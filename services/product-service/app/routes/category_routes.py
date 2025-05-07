@@ -3,6 +3,7 @@ from ..models import Category, Product, db
 from ..auth.middleware import auth_required
 from ..utils.validators import validate_category_data
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from shared.utils.pagination import PaginationHelper
 import logging
 
 bp = Blueprint('category', __name__, url_prefix='/api/categories')
@@ -10,14 +11,18 @@ logger = logging.getLogger(__name__)
 
 @bp.route('', methods=['GET'])
 def get_all_categories():
-    """Get all categories"""
+    """Get all categories with pagination"""
     logger.info("Getting all categories")
     
     try:
-        categories = Category.query.all()
-        return jsonify([category.to_dict() for category in categories]), 200
+        # Get pagination parameters
+        page, per_page = PaginationHelper.get_pagination_params()
+        
+        # Use shared pagination helper
+        query = Category.query.order_by(Category.name.asc())
+        result = PaginationHelper.paginate_query(query, Category, page, per_page)
+        return jsonify(result), 200
     except SQLAlchemyError as e:
-        db.session.rollback()
         logger.error(f"Database error in get_all_categories: {str(e)}")
         return jsonify({"error": "Database error", "message": str(e)}), 500
 

@@ -76,3 +76,33 @@ TypeError: 'first_name' is an invalid keyword argument for User
 2025-05-05 01:24:58,684 [INFO] [customer-support-service] - Flask extensions initialized
 2025-05-05 01:24:58,786 [INFO] [customer-support-service] - Database tables created successfully
 2025-05-05 01:24:58,787 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-06 12:35:15,483 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-06 12:35:15,484 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-06 12:35:15,485 [INFO] [customer-support-service] - CORS configured
+2025-05-06 12:35:15,627 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-06 12:35:15,867 [INFO] [customer-support-service] - Database tables created successfully
+2025-05-06 12:35:15,869 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-06 15:39:38,765 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-06 15:39:38,765 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-06 15:39:38,766 [INFO] [customer-support-service] - CORS configured
+2025-05-06 15:39:38,855 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-06 15:39:39,040 [INFO] [customer-support-service] - Database tables created successfully
+2025-05-06 15:39:39,042 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-07 11:18:37,299 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-07 11:18:37,300 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-07 11:18:37,300 [INFO] [customer-support-service] - CORS configured
+2025-05-07 11:18:37,395 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-07 11:18:37,741 [INFO] [customer-support-service] - Database tables created successfully
+2025-05-07 11:18:37,743 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-07 11:20:41,073 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-07 11:20:41,074 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-07 11:20:41,074 [INFO] [customer-support-service] - CORS configured
+2025-05-07 11:20:41,126 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-07 11:20:41,221 [INFO] [customer-support-service] - Database tables created successfully
+2025-05-07 11:20:41,222 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-07 11:22:44,240 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-07 11:22:44,240 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-07 11:22:44,241 [INFO] [customer-support-service] - CORS configured
+2025-05-07 11:22:44,309 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-07 11:22:44,412 [INFO] [customer-support-service] - Database tables created successfully
+2025-05-07 11:22:44,415 [INFO] [customer-support-service] - Customer Support Service initialization complete

@@ -4,6 +4,8 @@ from ..auth.middleware import auth_required
 from ..utils.validators import validate_product_data
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy import or_, and_, func
+from shared.utils.pagination import PaginationHelper
+from shared.utils.cloudinary_utils import cloudinary_uploader
 import logging
 
 bp = Blueprint('product', __name__, url_prefix='/api/products')
@@ -13,26 +15,12 @@ logger = logging.getLogger(__name__)
 def get_products():
     """
     Get products with pagination, filtering, and sorting
-    
-    Query parameters:
-    - page: Page number (default: 1)
-    - per_page: Items per page (default: 10)
-    - category: Filter by category name
-    - sort: Sort by field (price, name)
-    - order: Sort order (asc, desc)
-    - search: Search term for product name/description
-    - min_price: Minimum price filter
-    - max_price: Maximum price filter
     """
     logger.info("Getting products with filters")
     
     try:
-        # Parse query parameters
-        page = request.args.get('page', 1, type=int)
-        per_page = min(
-            request.args.get('per_page', current_app.config['DEFAULT_PAGE_SIZE'], type=int),
-            current_app.config['MAX_PAGE_SIZE']
-        )
+        # Get pagination parameters
+        page, per_page = PaginationHelper.get_pagination_params()
         sort_by = request.args.get('sort', 'id')
         order = request.args.get('order', 'asc')
         search = request.args.get('search', '')
@@ -70,22 +58,10 @@ def get_products():
         else:  # Default to id
             query = query.order_by(Product.id.asc() if order == 'asc' else Product.id.desc())
             
-        # Paginate results
-        paginated_products = query.paginate(page=page, per_page=per_page, error_out=False)
-        
-        result = {
-            'items': [product.to_dict() for product in paginated_products.items],
-            'pagination': {
-                'total': paginated_products.total,
-                'pages': paginated_products.pages,
-                'page': page,
-                'per_page': per_page,
-                'has_next': paginated_products.has_next,
-                'has_prev': paginated_products.has_prev
-            }
-        }
-        
+        # Use shared pagination helper
+        result = PaginationHelper.paginate_query(query, Product, page, per_page)
         return jsonify(result), 200
+
     except SQLAlchemyError as e:
         logger.error(f"Database error in get_products: {str(e)}")
         return jsonify({"error": "Database error", "message": str(e)}), 500
@@ -113,27 +89,35 @@ def create_product():
     """Create a new product"""
     logger.info("Creating new product")
     
-    data = request.get_json()
-    validation_error = validate_product_data(data)
-    
-    if validation_error:
-        logger.warning(f"Validation error in create_product: {validation_error}")
-        return jsonify({"error": validation_error}), 400
-        
     try:
+        # Handle form data and file
+        data = request.form.to_dict()
+        image_file = request.files.get('image')
+        
+        validation_error = validate_product_data(data)
+        if validation_error:
+            logger.warning(f"Validation error in create_product: {validation_error}")
+            return jsonify({"error": validation_error}), 400
+            
+        # Upload image if provided
+        image_url = None
+        if image_file:
+            try:
+                upload_result = cloudinary_uploader.upload_file(
+                    image_file,
+                    folder='products'
+                )
+                image_url = upload_result['url']
+            except Exception as e:
+                logger.error(f"Image upload error: {str(e)}")
+                return jsonify({"error": "Failed to upload image"}), 500
+
         # Verify category exists
         category = Category.query.get(data['category_id'])
         if not category:
             logger.warning(f"Category not found with ID: {data['category_id']}")
             return jsonify({"error": "Category not found"}), 404
-            
-        # Check if SKU exists if provided
-        if data.get('sku'):
-            existing_product = Product.query.filter_by(sku=data['sku']).first()
-            if existing_product:
-                logger.warning(f"Product with SKU '{data['sku']}' already exists")
-                return jsonify({"error": "Product with this SKU already exists"}), 409
-                
+
         product = Product(
             name=data['name'],
             description=data.get('description', ''),
@@ -141,7 +125,7 @@ def create_product():
             category_id=data['category_id'],
             stock_quantity=data.get('stock_quantity', 0),
             sku=data.get('sku'),
-            image_url=data.get('image_url')
+            image_url=image_url
         )
         
         db.session.add(product)
@@ -149,14 +133,11 @@ def create_product():
         
         logger.info(f"Product created successfully with ID: {product.id}")
         return jsonify(product.to_dict()), 201
-    except IntegrityError as e:
+
+    except Exception as e:
         db.session.rollback()
-        logger.error(f"Integrity error in create_product: {str(e)}")
-        return jsonify({"error": "Product creation failed due to data integrity error"}), 409
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        logger.error(f"Database error in create_product: {str(e)}")
-        return jsonify({"error": "Database error", "message": str(e)}), 500
+        logger.error(f"Error in create_product: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @bp.route('/<int:product_id>', methods=['PUT'])
 @auth_required
@@ -164,54 +145,51 @@ def update_product(product_id):
     """Update a product"""
     logger.info(f"Updating product with ID: {product_id}")
     
-    data = request.get_json()
-    validation_error = validate_product_data(data)
-    
-    if validation_error:
-        logger.warning(f"Validation error in update_product: {validation_error}")
-        return jsonify({"error": validation_error}), 400
-        
     try:
-        product = Product.query.get(product_id)
+        data = request.form.to_dict()
+        image_file = request.files.get('image')
         
+        validation_error = validate_product_data(data)
+        if validation_error:
+            logger.warning(f"Validation error in update_product: {validation_error}")
+            return jsonify({"error": validation_error}), 400
+            
+        product = Product.query.get(product_id)
         if not product:
             logger.warning(f"Product not found with ID: {product_id}")
             return jsonify({"error": "Product not found"}), 404
-            
-        # Verify category exists
-        category = Category.query.get(data['category_id'])
-        if not category:
-            logger.warning(f"Category not found with ID: {data['category_id']}")
-            return jsonify({"error": "Category not found"}), 404
-            
-        # Check if SKU exists if being changed
-        if data.get('sku') and data['sku'] != product.sku:
-            existing_product = Product.query.filter_by(sku=data['sku']).first()
-            if existing_product:
-                logger.warning(f"Product with SKU '{data['sku']}' already exists")
-                return jsonify({"error": "Product with this SKU already exists"}), 409
-                
+
+        # Handle image update if provided
+        if image_file:
+            try:
+                # Delete old image if exists
+                if product.image_url and 'cloudinary' in product.image_url:
+                    old_public_id = product.image_url.split('/')[-1].split('.')[0]
+                    cloudinary_uploader.delete_file(old_public_id)
+
+                # Upload new image
+                upload_result = cloudinary_uploader.upload_file(
+                    image_file,
+                    folder='products'
+                )
+                data['image_url'] = upload_result['url']
+            except Exception as e:
+                logger.error(f"Image upload error: {str(e)}")
+                return jsonify({"error": "Failed to upload image"}), 500
+
         # Update product fields
-        product.name = data['name']
-        product.description = data.get('description', product.description)
-        product.price = data['price']
-        product.category_id = data['category_id']
-        product.stock_quantity = data.get('stock_quantity', product.stock_quantity)
-        product.sku = data.get('sku', product.sku)
-        product.image_url = data.get('image_url', product.image_url)
-        
+        for key, value in data.items():
+            if hasattr(product, key):
+                setattr(product, key, value)
+
         db.session.commit()
-        
         logger.info(f"Product updated successfully with ID: {product.id}")
         return jsonify(product.to_dict()), 200
-    except IntegrityError as e:
+
+    except Exception as e:
         db.session.rollback()
-        logger.error(f"Integrity error in update_product: {str(e)}")
-        return jsonify({"error": "Product update failed due to data integrity error"}), 409
-    except SQLAlchemyError as e:
-        db.session.rollback()
-        logger.error(f"Database error in update_product: {str(e)}")
-        return jsonify({"error": "Database error", "message": str(e)}), 500
+        logger.error(f"Error in update_product: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @bp.route('/<int:product_id>', methods=['PATCH'])
 @auth_required

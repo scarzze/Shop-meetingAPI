@@ -3,6 +3,7 @@ from ..models import Review, Product, db
 from ..auth.middleware import auth_required
 from ..utils.validators import validate_review_data
 from sqlalchemy.exc import SQLAlchemyError
+from shared.utils.pagination import PaginationHelper
 import logging
 
 bp = Blueprint('review', __name__, url_prefix='/api/reviews')
@@ -10,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 @bp.route('/product/<int:product_id>', methods=['GET'])
 def get_product_reviews(product_id):
-    """Get all reviews for a product"""
+    """Get all reviews for a product with pagination"""
     logger.info(f"Getting reviews for product ID: {product_id}")
     
     try:
@@ -20,10 +21,15 @@ def get_product_reviews(product_id):
             logger.warning(f"Product not found with ID: {product_id}")
             return jsonify({"error": "Product not found"}), 404
             
-        # Get reviews
-        reviews = Review.query.filter_by(product_id=product_id).all()
+        # Get pagination parameters
+        page, per_page = PaginationHelper.get_pagination_params()
         
-        return jsonify([review.to_dict() for review in reviews]), 200
+        # Build query with sorting by date
+        query = Review.query.filter_by(product_id=product_id).order_by(Review.created_at.desc())
+        
+        # Use shared pagination helper
+        result = PaginationHelper.paginate_query(query, Review, page, per_page)
+        return jsonify(result), 200
     except SQLAlchemyError as e:
         logger.error(f"Database error in get_product_reviews: {str(e)}")
         return jsonify({"error": "Database error", "message": str(e)}), 500
