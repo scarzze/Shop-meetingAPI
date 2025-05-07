@@ -9,8 +9,14 @@ class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key')
     
     # Database settings
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///instance/profile_service.db')
+    DEBUG_MODE = os.environ.get('DEBUG_MODE', 'False').lower() == 'true'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'connect_args': {
+            'sslmode': 'require'
+        }
+    }
     
     # JWT settings
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'jwt-secret-key')

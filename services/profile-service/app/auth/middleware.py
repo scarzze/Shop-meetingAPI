@@ -1,24 +1,24 @@
 from functools import wraps
-from flask import request, jsonify, current_app
+from flask import request, jsonify
+import requests
+import os
+import logging
+from dotenv import load_dotenv
+from utils.auth_utils import auth_required, admin_required
 
-def auth_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth_header = request.headers.get('Authorization')
-        if not auth_header:
-            return jsonify({'message': 'Missing authorization header'}), 401
-        
-        try:
-            token = auth_header.split(' ')[1]
-            
-            # In development mode, allow test tokens
-            if token.startswith('test_user_'):
-                request.user_id = token
-                return f(*args, **kwargs)
-            
-            return jsonify({'message': 'Invalid token format'}), 401
-            
-        except Exception as e:
-            return jsonify({'message': 'Invalid token format'}), 401
-            
-    return decorated
+load_dotenv()
+
+AUTH_SERVICE_URL = os.getenv('AUTH_SERVICE_URL', 'http://localhost:5002')
+DEBUG_MODE = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('auth_middleware')
+
+# This is kept for backward compatibility, but we'll now use the shared auth_utils
+
+# Get DEBUG_MODE from environment variable
+DEBUG_MODE = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+
+# Legacy auth_required function - replaced by shared auth_utils
+# Now we use the imported auth_required from utils.auth_utils

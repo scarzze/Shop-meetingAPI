@@ -36,6 +36,22 @@ class SerializerMixin:
         return result
 
 
+class User(SerializerMixin, db.Model):
+    """Model for users synced from Auth Service"""
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    first_name = db.Column(db.String(80), nullable=False)
+    last_name = db.Column(db.String(80), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    orders = db.relationship('Order', backref='user', lazy=True, 
+                           primaryjoin="User.id == Order.user_id",
+                           foreign_keys='Order.user_id')
+
+
 class Order(SerializerMixin, db.Model):
     """Model for customer orders"""
     __tablename__ = 'orders'

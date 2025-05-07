@@ -1,0 +1,210 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build: ./services/auth-service
+    ports:
+      - "5002:5002"
+    environment:
+      - DATABASE_URL=postgresql://hosea:moringa001@postgres:5432/auth_db
+      - JWT_SECRET_KEY=your_super_secret_jwt_key
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - shop-network
+
+  cart-service:
+    build: ./services/cart-service
+    ports:
+      - "5001:5001"
+    environment:
+      - DATABASE_URL=postgresql://hosea:moringa001@postgres:5432/cart_db
+      - AUTH_SERVICE_URL=http://auth-service:5002
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - shop-network
+
+  profile-service:
+    build: ./services/profile-service
+    ports:
+      - "5003:5003"
+    environment:
+      - DATABASE_URL=postgresql://hosea:moringa001@postgres:5432/profile_db
+      - AUTH_SERVICE_URL=http://auth-service:5002
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - shop-network
+
+  order-service:
+    build: ./services/Orderservice
+    ports:
+      - "5005:5005"
+    environment:
+      - DATABASE_URL=postgresql://hosea:moringa001@postgres:5432/order_db
+      - AUTH_SERVICE_URL=http://auth-service:5002
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - shop-network
+
+  customer-support:
+    build: ./services/Customer_support_back-end
+    ports:
+      - "5004:5004"
+    environment:
+      - DATABASE_URL=postgresql://hosea:moringa001@postgres:5432/customer_support_db
+      - AUTH_SERVICE_URL=http://auth-service:5002
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - shop-network
+
+  product-service:
+    build: ./services/product-service
+    ports:
+      - "5006:5006"
+    environment:
+      - DATABASE_URL=postgresql://hosea:moringa001@postgres:5432/product_service_db
+      - AUTH_SERVICE_URL=http://auth-service:5002
+      - POSTGRES_USER=hosea
+      - POSTGRES_PASSWORD=moringa001
+      - POSTGRES_DB=product_service_db
+      - SEED_DB=true
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5006/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - shop-network
+
+  health-checker:
+    build:
+      context: .
+      dockerfile: Dockerfile.health-checker
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:5002
+      - CART_SERVICE_URL=http://cart-service:5001
+      - PROFILE_SERVICE_URL=http://profile-service:5003
+      - ORDER_SERVICE_URL=http://order-service:5005
+      - CUSTOMER_SUPPORT_URL=http://customer-support:5004
+      - PRODUCT_SERVICE_URL=http://product-service:5006
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      cart-service:
+        condition: service_healthy
+      profile-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+      customer-support:
+        condition: service_healthy
+      product-service:
+        condition: service_healthy
+    networks:
+      - shop-network
+
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=hosea
+      - POSTGRES_PASSWORD=moringa001
+      - POSTGRES_MULTIPLE_DATABASES=auth_db,cart_db,profile_db,order_db,customer_support_db,product_service_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:rw
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hosea"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - shop-network
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth-service
+      - cart-service
+      - profile-service
+      - order-service
+      - customer-support
+      - product-service
+    networks:
+      - shop-network
+
+volumes:
+  postgres_data:
+    name: shop_meeting_postgres_data
+
+networks:
+  shop-network:
+    driver: bridge
