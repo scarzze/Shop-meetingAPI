@@ -1,35 +1,113 @@
 from __future__ import annotations
 
+from typing import Any
 from typing import Callable
+from typing import Collection
 from typing import ContextManager
 from typing import Dict
 from typing import List
+from typing import Mapping
+from typing import MutableMapping
 from typing import Optional
 from typing import overload
+from typing import Sequence
 from typing import TextIO
 from typing import Tuple
 from typing import TYPE_CHECKING
 from typing import Union
 
+from sqlalchemy.sql.schema import Column
+from sqlalchemy.sql.schema import FetchedValue
+from typing_extensions import Literal
+
+from .migration import _ProxyTransaction
 from .migration import MigrationContext
 from .. import util
 from ..operations import Operations
+from ..script.revision import _GetRevArg
 
 if TYPE_CHECKING:
-    from typing import Literal
-
+    from sqlalchemy.engine import URL
     from sqlalchemy.engine.base import Connection
+    from sqlalchemy.sql import Executable
     from sqlalchemy.sql.schema import MetaData
+    from sqlalchemy.sql.schema import SchemaItem
+    from sqlalchemy.sql.type_api import TypeEngine
 
-    from .migration import _ProxyTransaction
+    from .migration import MigrationInfo
+    from ..autogenerate.api import AutogenContext
     from ..config import Config
+    from ..ddl import DefaultImpl
+    from ..operations.ops import MigrationScript
     from ..script.base import ScriptDirectory
 
 _RevNumber = Optional[Union[str, Tuple[str, ...]]]
 
+ProcessRevisionDirectiveFn = Callable[
+    [MigrationContext, _GetRevArg, List["MigrationScript"]], None
+]
+
+RenderItemFn = Callable[
+    [str, Any, "AutogenContext"], Union[str, Literal[False]]
+]
+
+NameFilterType = Literal[
+    "schema",
+    "table",
+    "column",
+    "index",
+    "unique_constraint",
+    "foreign_key_constraint",
+]
+NameFilterParentNames = MutableMapping[
+    Literal["schema_name", "table_name", "schema_qualified_table_name"],
+    Optional[str],
+]
+IncludeNameFn = Callable[
+    [Optional[str], NameFilterType, NameFilterParentNames], bool
+]
+
+IncludeObjectFn = Callable[
+    [
+        "SchemaItem",
+        Optional[str],
+        NameFilterType,
+        bool,
+        Optional["SchemaItem"],
+    ],
+    bool,
+]
+
+OnVersionApplyFn = Callable[
+    [MigrationContext, "MigrationInfo", Collection[Any], Mapping[str, Any]],
+    None,
+]
+
+CompareServerDefault = Callable[
+    [
+        MigrationContext,
+        "Column[Any]",
+        "Column[Any]",
+        Optional[str],
+        Optional[FetchedValue],
+        Optional[str],
+    ],
+    Optional[bool],
+]
+
+CompareType = Callable[
+    [
+        MigrationContext,
+        "Column[Any]",
+        "Column[Any]",
+        "TypeEngine[Any]",
+        "TypeEngine[Any]",
+    ],
+    Optional[bool],
+]
+
 
 class EnvironmentContext(util.ModuleClsProxy):
-
     """A configurational facade made available in an ``env.py`` script.
 
     The :class:`.EnvironmentContext` acts as a *facade* to the more
@@ -56,20 +134,22 @@ class EnvironmentContext(util.ModuleClsProxy):
         config.set_main_option("script_location", "myapp:migrations")
         script = ScriptDirectory.from_config(config)
 
+
         def my_function(rev, context):
             '''do something with revision "rev", which
             will be the current database revision,
             and "context", which is the MigrationContext
             that the env.py will create'''
 
+
         with EnvironmentContext(
             config,
             script,
-            fn = my_function,
-            as_sql = False,
-            starting_rev = 'base',
-            destination_rev = 'head',
-            tag = "sometag"
+            fn=my_function,
+            as_sql=False,
+            starting_rev="base",
+            destination_rev="head",
+            tag="sometag",
         ):
             script.run_env()
 
@@ -91,14 +171,14 @@ class EnvironmentContext(util.ModuleClsProxy):
 
     """
 
-    _migration_context: Optional["MigrationContext"] = None
+    _migration_context: Optional[MigrationContext] = None
 
-    config: "Config" = None  # type:ignore[assignment]
+    config: Config = None  # type:ignore[assignment]
     """An instance of :class:`.Config` representing the
     configuration file contents as well as other variables
     set programmatically within it."""
 
-    script: "ScriptDirectory" = None  # type:ignore[assignment]
+    script: ScriptDirectory = None  # type:ignore[assignment]
     """An instance of :class:`.ScriptDirectory` which provides
     programmatic access to version files within the ``versions/``
     directory.
@@ -106,7 +186,7 @@ class EnvironmentContext(util.ModuleClsProxy):
     """
 
     def __init__(
-        self, config: "Config", script: "ScriptDirectory", **kw
+        self, config: Config, script: ScriptDirectory, **kw: Any
     ) -> None:
         r"""Construct a new :class:`.EnvironmentContext`.
 
@@ -121,7 +201,7 @@ class EnvironmentContext(util.ModuleClsProxy):
         self.script = script
         self.context_opts = kw
 
-    def __enter__(self) -> "EnvironmentContext":
+    def __enter__(self) -> EnvironmentContext:
         """Establish a context which provides a
         :class:`.EnvironmentContext` object to
         env.py scripts.
@@ -133,7 +213,7 @@ class EnvironmentContext(util.ModuleClsProxy):
         self._install_proxy()
         return self
 
-    def __exit__(self, *arg, **kw) -> None:
+    def __exit__(self, *arg: Any, **kw: Any) -> None:
         self._remove_proxy()
 
     def is_offline_mode(self) -> bool:
@@ -147,9 +227,9 @@ class EnvironmentContext(util.ModuleClsProxy):
         has been configured.
 
         """
-        return self.context_opts.get("as_sql", False)
+        return self.context_opts.get("as_sql", False)  # type: ignore[no-any-return]  # noqa: E501
 
-    def is_transactional_ddl(self):
+    def is_transactional_ddl(self) -> bool:
         """Return True if the context is configured to expect a
         transactional DDL capable backend.
 
@@ -258,21 +338,24 @@ class EnvironmentContext(util.ModuleClsProxy):
             line.
 
         """
-        return self.context_opts.get("tag", None)
+        return self.context_opts.get("tag", None)  # type: ignore[no-any-return]  # noqa: E501
 
     @overload
-    def get_x_argument(  # type:ignore[misc]
-        self, as_dictionary: "Literal[False]" = ...
-    ) -> List[str]:
-        ...
+    def get_x_argument(self, as_dictionary: Literal[False]) -> List[str]: ...
 
     @overload
-    def get_x_argument(  # type:ignore[misc]
-        self, as_dictionary: "Literal[True]" = ...
-    ) -> Dict[str, str]:
-        ...
+    def get_x_argument(
+        self, as_dictionary: Literal[True]
+    ) -> Dict[str, str]: ...
 
-    def get_x_argument(self, as_dictionary: bool = False):
+    @overload
+    def get_x_argument(
+        self, as_dictionary: bool = ...
+    ) -> Union[List[str], Dict[str, str]]: ...
+
+    def get_x_argument(
+        self, as_dictionary: bool = False
+    ) -> Union[List[str], Dict[str, str]]:
         """Return the value(s) passed for the ``-x`` argument, if any.
 
         The ``-x`` argument is an open ended flag that allows any user-defined
@@ -282,7 +365,11 @@ class EnvironmentContext(util.ModuleClsProxy):
         The return value is a list, returned directly from the ``argparse``
         structure.  If ``as_dictionary=True`` is passed, the ``x`` arguments
         are parsed using ``key=value`` format into a dictionary that is
-        then returned.
+        then returned. If there is no ``=`` in the argument, value is an empty
+        string.
+
+        .. versionchanged:: 1.13.1 Support ``as_dictionary=True`` when
+           arguments are passed without the ``=`` symbol.
 
         For example, to support passing a database URL on the command line,
         the standard ``env.py`` script can be modified like this::
@@ -316,38 +403,45 @@ class EnvironmentContext(util.ModuleClsProxy):
         else:
             value = []
         if as_dictionary:
-            value = dict(arg.split("=", 1) for arg in value)
+            dict_value = {}
+            for arg in value:
+                x_key, _, x_value = arg.partition("=")
+                dict_value[x_key] = x_value
+            value = dict_value
+
         return value
 
     def configure(
         self,
-        connection: Optional["Connection"] = None,
-        url: Optional[str] = None,
+        connection: Optional[Connection] = None,
+        url: Optional[Union[str, URL]] = None,
         dialect_name: Optional[str] = None,
-        dialect_opts: Optional[dict] = None,
+        dialect_opts: Optional[Dict[str, Any]] = None,
         transactional_ddl: Optional[bool] = None,
         transaction_per_migration: bool = False,
         output_buffer: Optional[TextIO] = None,
         starting_rev: Optional[str] = None,
         tag: Optional[str] = None,
-        template_args: Optional[dict] = None,
+        template_args: Optional[Dict[str, Any]] = None,
         render_as_batch: bool = False,
-        target_metadata: Optional["MetaData"] = None,
-        include_name: Optional[Callable] = None,
-        include_object: Optional[Callable] = None,
+        target_metadata: Union[MetaData, Sequence[MetaData], None] = None,
+        include_name: Optional[IncludeNameFn] = None,
+        include_object: Optional[IncludeObjectFn] = None,
         include_schemas: bool = False,
-        process_revision_directives: Optional[Callable] = None,
-        compare_type: bool = False,
-        compare_server_default: bool = False,
-        render_item: Optional[Callable] = None,
+        process_revision_directives: Optional[
+            ProcessRevisionDirectiveFn
+        ] = None,
+        compare_type: Union[bool, CompareType] = True,
+        compare_server_default: Union[bool, CompareServerDefault] = False,
+        render_item: Optional[RenderItemFn] = None,
         literal_binds: bool = False,
         upgrade_token: str = "upgrades",
         downgrade_token: str = "downgrades",
         alembic_module_prefix: str = "op.",
         sqlalchemy_module_prefix: str = "sa.",
         user_module_prefix: Optional[str] = None,
-        on_version_apply: Optional[Callable] = None,
-        **kw,
+        on_version_apply: Optional[OnVersionApplyFn] = None,
+        **kw: Any,
     ) -> None:
         """Configure a :class:`.MigrationContext` within this
         :class:`.EnvironmentContext` which will provide database
@@ -393,9 +487,6 @@ class EnvironmentContext(util.ModuleClsProxy):
          ``connection`` and ``url`` are not passed.
         :param dialect_opts: dictionary of options to be passed to dialect
          constructor.
-
-         .. versionadded:: 1.0.12
-
         :param transactional_ddl: Force the usage of "transactional"
          DDL on or off;
          this otherwise defaults to whether or not the dialect in
@@ -478,12 +569,16 @@ class EnvironmentContext(util.ModuleClsProxy):
          to produce candidate upgrade/downgrade operations.
         :param compare_type: Indicates type comparison behavior during
          an autogenerate
-         operation.  Defaults to ``False`` which disables type
-         comparison.  Set to
-         ``True`` to turn on default type comparison, which has varied
-         accuracy depending on backend.   See :ref:`compare_types`
+         operation.  Defaults to ``True`` turning on type comparison, which
+         has good accuracy on most backends.   See :ref:`compare_types`
          for an example as well as information on other type
-         comparison options.
+         comparison options. Set to ``False`` which disables type
+         comparison. A callable can also be passed to provide custom type
+         comparison, see :ref:`compare_types` for additional details.
+
+         .. versionchanged:: 1.12.0 The default value of
+            :paramref:`.EnvironmentContext.configure.compare_type` has been
+            changed to ``True``.
 
          .. seealso::
 
@@ -550,7 +645,8 @@ class EnvironmentContext(util.ModuleClsProxy):
            ``"unique_constraint"``, or ``"foreign_key_constraint"``
          * ``parent_names``: a dictionary of "parent" object names, that are
            relative to the name being given.  Keys in this dictionary may
-           include:  ``"schema_name"``, ``"table_name"``.
+           include:  ``"schema_name"``, ``"table_name"`` or
+           ``"schema_qualified_table_name"``.
 
          E.g.::
 
@@ -565,8 +661,6 @@ class EnvironmentContext(util.ModuleClsProxy):
                 include_schemas = True,
                 include_name = include_name
             )
-
-         .. versionadded:: 1.5
 
          .. seealso::
 
@@ -811,8 +905,7 @@ class EnvironmentContext(util.ModuleClsProxy):
 
         if render_item is not None:
             opts["render_item"] = render_item
-        if compare_type is not None:
-            opts["compare_type"] = compare_type
+        opts["compare_type"] = compare_type
         if compare_server_default is not None:
             opts["compare_server_default"] = compare_server_default
         opts["script"] = self.script
@@ -828,7 +921,7 @@ class EnvironmentContext(util.ModuleClsProxy):
             opts=opts,
         )
 
-    def run_migrations(self, **kw) -> None:
+    def run_migrations(self, **kw: Any) -> None:
         """Run migrations as determined by the current command line
         configuration
         as well as versioning information present (or not) in the current
@@ -852,7 +945,11 @@ class EnvironmentContext(util.ModuleClsProxy):
         with Operations.context(self._migration_context):
             self.get_context().run_migrations(**kw)
 
-    def execute(self, sql, execution_options=None):
+    def execute(
+        self,
+        sql: Union[Executable, str],
+        execution_options: Optional[Dict[str, Any]] = None,
+    ) -> None:
         """Execute the given SQL using the current change context.
 
         The behavior of :meth:`.execute` is the same
@@ -866,7 +963,7 @@ class EnvironmentContext(util.ModuleClsProxy):
         """
         self.get_context().execute(sql, execution_options=execution_options)
 
-    def static_output(self, text):
+    def static_output(self, text: str) -> None:
         """Emit text directly to the "offline" SQL stream.
 
         Typically this is for emitting comments that
@@ -879,7 +976,7 @@ class EnvironmentContext(util.ModuleClsProxy):
 
     def begin_transaction(
         self,
-    ) -> Union["_ProxyTransaction", ContextManager]:
+    ) -> Union[_ProxyTransaction, ContextManager[None]]:
         """Return a context manager that will
         enclose an operation within a "transaction",
         as defined by the environment's offline
@@ -925,7 +1022,7 @@ class EnvironmentContext(util.ModuleClsProxy):
 
         return self.get_context().begin_transaction()
 
-    def get_context(self) -> "MigrationContext":
+    def get_context(self) -> MigrationContext:
         """Return the current :class:`.MigrationContext` object.
 
         If :meth:`.EnvironmentContext.configure` has not been
@@ -937,7 +1034,7 @@ class EnvironmentContext(util.ModuleClsProxy):
             raise Exception("No context has been configured yet.")
         return self._migration_context
 
-    def get_bind(self):
+    def get_bind(self) -> Connection:
         """Return the current 'bind'.
 
         In "online" mode, this is the
@@ -948,7 +1045,7 @@ class EnvironmentContext(util.ModuleClsProxy):
         has first been made available via :meth:`.configure`.
 
         """
-        return self.get_context().bind
+        return self.get_context().bind  # type: ignore[return-value]
 
-    def get_impl(self):
+    def get_impl(self) -> DefaultImpl:
         return self.get_context().impl

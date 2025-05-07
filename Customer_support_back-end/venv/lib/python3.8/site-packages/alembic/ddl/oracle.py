@@ -1,11 +1,13 @@
+# mypy: allow-untyped-defs, allow-incomplete-defs, allow-untyped-calls
+# mypy: no-warn-return-any, allow-any-generics
+
 from __future__ import annotations
 
+import re
 from typing import Any
 from typing import Optional
 from typing import TYPE_CHECKING
-from typing import Union
 
-from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql import sqltypes
 
 from .base import AddColumn
@@ -22,11 +24,11 @@ from .base import format_type
 from .base import IdentityColumnDefault
 from .base import RenameTable
 from .impl import DefaultImpl
+from ..util.sqla_compat import compiles
 
 if TYPE_CHECKING:
     from sqlalchemy.dialects.oracle.base import OracleDDLCompiler
     from sqlalchemy.engine.cursor import CursorResult
-    from sqlalchemy.engine.cursor import LegacyCursorResult
     from sqlalchemy.sql.schema import Column
 
 
@@ -43,18 +45,44 @@ class OracleImpl(DefaultImpl):
     identity_attrs_ignore = ()
 
     def __init__(self, *arg, **kw) -> None:
-        super(OracleImpl, self).__init__(*arg, **kw)
+        super().__init__(*arg, **kw)
         self.batch_separator = self.context_opts.get(
             "oracle_batch_separator", self.batch_separator
         )
 
-    def _exec(
-        self, construct: Any, *args, **kw
-    ) -> Optional[Union["LegacyCursorResult", "CursorResult"]]:
-        result = super(OracleImpl, self)._exec(construct, *args, **kw)
+    def _exec(self, construct: Any, *args, **kw) -> Optional[CursorResult]:
+        result = super()._exec(construct, *args, **kw)
         if self.as_sql and self.batch_separator:
             self.static_output(self.batch_separator)
         return result
+
+    def compare_server_default(
+        self,
+        inspector_column,
+        metadata_column,
+        rendered_metadata_default,
+        rendered_inspector_default,
+    ):
+        if rendered_metadata_default is not None:
+            rendered_metadata_default = re.sub(
+                r"^\((.+)\)$", r"\1", rendered_metadata_default
+            )
+
+            rendered_metadata_default = re.sub(
+                r"^\"?'(.+)'\"?$", r"\1", rendered_metadata_default
+            )
+
+        if rendered_inspector_default is not None:
+            rendered_inspector_default = re.sub(
+                r"^\((.+)\)$", r"\1", rendered_inspector_default
+            )
+
+            rendered_inspector_default = re.sub(
+                r"^\"?'(.+)'\"?$", r"\1", rendered_inspector_default
+            )
+
+            rendered_inspector_default = rendered_inspector_default.strip()
+        return rendered_inspector_default != rendered_metadata_default
 
     def emit_begin(self) -> None:
         self._exec("SET TRANSACTION READ WRITE")
@@ -65,7 +93,7 @@ class OracleImpl(DefaultImpl):
 
 @compiles(AddColumn, "oracle")
 def visit_add_column(
-    element: "AddColumn", compiler: "OracleDDLCompiler", **kw
+    element: AddColumn, compiler: OracleDDLCompiler, **kw
 ) -> str:
     return "%s %s" % (
         alter_table(compiler, element.table_name, element.schema),
@@ -75,7 +103,7 @@ def visit_add_column(
 
 @compiles(ColumnNullable, "oracle")
 def visit_column_nullable(
-    element: "ColumnNullable", compiler: "OracleDDLCompiler", **kw
+    element: ColumnNullable, compiler: OracleDDLCompiler, **kw
 ) -> str:
     return "%s %s %s" % (
         alter_table(compiler, element.table_name, element.schema),
@@ -86,7 +114,7 @@ def visit_column_nullable(
 
 @compiles(ColumnType, "oracle")
 def visit_column_type(
-    element: "ColumnType", compiler: "OracleDDLCompiler", **kw
+    element: ColumnType, compiler: OracleDDLCompiler, **kw
 ) -> str:
     return "%s %s %s" % (
         alter_table(compiler, element.table_name, element.schema),
@@ -97,7 +125,7 @@ def visit_column_type(
 
 @compiles(ColumnName, "oracle")
 def visit_column_name(
-    element: "ColumnName", compiler: "OracleDDLCompiler", **kw
+    element: ColumnName, compiler: OracleDDLCompiler, **kw
 ) -> str:
     return "%s RENAME COLUMN %s TO %s" % (
         alter_table(compiler, element.table_name, element.schema),
@@ -108,20 +136,22 @@ def visit_column_name(
 
 @compiles(ColumnDefault, "oracle")
 def visit_column_default(
-    element: "ColumnDefault", compiler: "OracleDDLCompiler", **kw
+    element: ColumnDefault, compiler: OracleDDLCompiler, **kw
 ) -> str:
     return "%s %s %s" % (
         alter_table(compiler, element.table_name, element.schema),
         alter_column(compiler, element.column_name),
-        "DEFAULT %s" % format_server_default(compiler, element.default)
-        if element.default is not None
-        else "DEFAULT NULL",
+        (
+            "DEFAULT %s" % format_server_default(compiler, element.default)
+            if element.default is not None
+            else "DEFAULT NULL"
+        ),
     )
 
 
 @compiles(ColumnComment, "oracle")
 def visit_column_comment(
-    element: "ColumnComment", compiler: "OracleDDLCompiler", **kw
+    element: ColumnComment, compiler: OracleDDLCompiler, **kw
 ) -> str:
     ddl = "COMMENT ON COLUMN {table_name}.{column_name} IS {comment}"
 
@@ -139,7 +169,7 @@ def visit_column_comment(
 
 @compiles(RenameTable, "oracle")
 def visit_rename_table(
-    element: "RenameTable", compiler: "OracleDDLCompiler", **kw
+    element: RenameTable, compiler: OracleDDLCompiler, **kw
 ) -> str:
     return "%s RENAME TO %s" % (
         alter_table(compiler, element.table_name, element.schema),
@@ -147,17 +177,17 @@ def visit_rename_table(
     )
 
 
-def alter_column(compiler: "OracleDDLCompiler", name: str) -> str:
+def alter_column(compiler: OracleDDLCompiler, name: str) -> str:
     return "MODIFY %s" % format_column_name(compiler, name)
 
 
-def add_column(compiler: "OracleDDLCompiler", column: "Column", **kw) -> str:
+def add_column(compiler: OracleDDLCompiler, column: Column[Any], **kw) -> str:
     return "ADD %s" % compiler.get_column_specification(column, **kw)
 
 
 @compiles(IdentityColumnDefault, "oracle")
 def visit_identity_column(
-    element: "IdentityColumnDefault", compiler: "OracleDDLCompiler", **kw
+    element: IdentityColumnDefault, compiler: OracleDDLCompiler, **kw
 ):
     text = "%s %s " % (
         alter_table(compiler, element.table_name, element.schema),

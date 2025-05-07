@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/home/salma-hagi/development/code/Phase 5/Shop-meetingAPI/services/Customer_support_back-end/venv/bin/python3" "$0" "$@"
+'''exec' "/home/salma-hagi/development/code/Phase 5/Shop-meetingAPI/services/Customer_support_back-end/venv/bin/python" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re
