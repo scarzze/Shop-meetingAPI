@@ -9,4 +9,4 @@ def log_action(action, status_code):
     """
     log = Log(action=action, status_code=status_code)
     db.session.add(log)
-    db.session.commit()
+    db.session.commit() 

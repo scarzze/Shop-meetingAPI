@@ -3,9 +3,12 @@ from models import User, Ticket, Feedback, Log
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from datetime import datetime
+from app.routes import socket_routes 
+from flask_socketio import emit  
+import os
 
 # Setup the database session
-DATABASE_URI = 'postgresql://BL4CK:Oversea838@localhost/customer_support'  # Update as needed
+DATABASE_URI = os.getenv('DATABASE_URL')  # Use environment variable
 engine = create_engine(DATABASE_URI)
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -108,15 +111,19 @@ def get_feedback(feedback_id):
 
 # -------------------------- CHAT ROUTES --------------------------
 
-@chat_bp.route('/chat', methods=['POST'])
-def chat():
-    data = request.get_json()
-    user_message = data.get('message', '')
-    
-    # Here you can integrate the chatbot logic or send the message to another service
-    response = {"message": f"Chatbot Response: {user_message}"}
-    
-    return jsonify(response)
+@chat_bp.route('/chat/history/<int:ticket_id>', methods=['GET'])
+def get_chat_history(ticket_id):
+    """Get chat history for a ticket"""
+    try:
+        logs = session.query(Log).filter_by(ticket_id=ticket_id).order_by(Log.created_at).all()
+        history = [{
+            'message': log.message,
+            'user_id': log.user_id,
+            'created_at': log.created_at.isoformat()
+        } for log in logs]
+        return jsonify(history)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 # -------------------------- Error Handling --------------------------

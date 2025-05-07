@@ -74,3 +74,4 @@ class Log(Base):
 # Creating all the tables
 def create_tables(engine):
     Base.metadata.create_all(engine)
+ 
