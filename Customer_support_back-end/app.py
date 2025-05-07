@@ -29,10 +29,4 @@ def create_app():
 app = create_app()
 
 if __name__ == '__main__':
-    socketio.run(
-        app,
-        debug=True,
-        host='0.0.0.0',
-        port=5004,
-        allow_unsafe_werkzeug=True  # This should be inside the function call, not outside
-    )
+    socketio.run(app, debug=True, host='0.0.0.0', port=5004)
