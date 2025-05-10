@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from app.models import Address, Profile, db
 from app.auth.middleware import auth_required
 import logging
+import os
 from sqlalchemy.exc import SQLAlchemyError
 
 bp = Blueprint('address', __name__, url_prefix='/addresses')
@@ -10,6 +11,41 @@ logger = logging.getLogger(__name__)
 @bp.route('', methods=['GET'])
 @auth_required
 def get_addresses():
+    # Check if DEBUG_MODE is enabled
+    debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+    
+    # In DEBUG_MODE, return mock address data
+    if debug_mode:
+        mock_addresses = [
+            {
+                'id': 1,
+                'address_type': 'home',
+                'is_default': True,
+                'name': 'Home Address',
+                'street': '123 Main Street',
+                'city': 'Example City',
+                'state': 'Example State',
+                'country': 'Example Country',
+                'postal_code': '12345',
+                'phone': '+1234567890'
+            },
+            {
+                'id': 2,
+                'address_type': 'work',
+                'is_default': False,
+                'name': 'Work Address',
+                'street': '456 Office Boulevard',
+                'city': 'Business City',
+                'state': 'Business State',
+                'country': 'Example Country',
+                'postal_code': '67890',
+                'phone': '+0987654321'
+            }
+        ]
+        logger.info("Returning mock addresses in DEBUG_MODE")
+        return jsonify(mock_addresses), 200
+    
+    # Not in DEBUG_MODE - use database
     try:
         current_user_id = request.user_id
         profile = Profile.query.filter_by(user_id=current_user_id).first()
@@ -36,6 +72,33 @@ def get_addresses():
 @bp.route('', methods=['POST'])
 @auth_required
 def add_address():
+    # Check if DEBUG_MODE is enabled
+    debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+    
+    # In DEBUG_MODE, return mock response for adding an address
+    if debug_mode:
+        data = request.get_json()
+        required_fields = ['name', 'street', 'city', 'country', 'postal_code']
+        if not all(field in data for field in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+            
+        # Create a mock response with the new address
+        mock_address = {
+            'id': 3,  # Simulate a new ID
+            'address_type': data.get('address_type', 'shipping'),
+            'is_default': data.get('is_default', False),
+            'name': data.get('name'),
+            'street': data.get('street'),
+            'city': data.get('city'),
+            'state': data.get('state', ''),
+            'country': data.get('country'),
+            'postal_code': data.get('postal_code'),
+            'phone': data.get('phone', '')
+        }
+        logger.info("Created mock address in DEBUG_MODE")
+        return jsonify(mock_address), 201
+        
+    # Not in DEBUG_MODE - use database
     try:
         current_user_id = request.user_id
         profile = Profile.query.filter_by(user_id=current_user_id).first()

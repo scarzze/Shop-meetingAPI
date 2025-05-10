@@ -1,4 +1,4 @@
-.PHONY: init start stop graceful-stop status migrate validate diagnose clean health
+x.PHONY: init start stop graceful-stop status migrate validate diagnose clean health
 
 # Initialize everything
 init:

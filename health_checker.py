@@ -13,7 +13,8 @@ SERVICES = {
     'cart': os.getenv('CART_SERVICE_URL', 'http://localhost:5001') + '/health',
     'profile': os.getenv('PROFILE_SERVICE_URL', 'http://localhost:5003') + '/health',
     'order': os.getenv('ORDER_SERVICE_URL', 'http://localhost:5005') + '/health',
-    'customer-support': os.getenv('CUSTOMER_SUPPORT_URL', 'http://localhost:5004') + '/health'
+    'customer-support': os.getenv('CUSTOMER_SUPPORT_URL', 'http://localhost:5004') + '/health',
+    'product': os.getenv('PRODUCT_SERVICE_URL', 'http://localhost:5006') + '/health'
 }
 
 def check_service_health(service_name, url):

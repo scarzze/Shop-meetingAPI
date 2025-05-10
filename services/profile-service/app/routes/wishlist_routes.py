@@ -4,6 +4,7 @@ from app.models import Profile, WishlistItem, db
 from app.auth.middleware import auth_required
 from config import Config
 import logging
+import os
 
 bp = Blueprint('wishlist', __name__)
 logger = logging.getLogger(__name__)
@@ -11,6 +12,41 @@ logger = logging.getLogger(__name__)
 @bp.route('/wishlist', methods=['GET'])
 @auth_required
 def get_wishlist():
+    # Check if DEBUG_MODE is enabled
+    debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+    
+    # In DEBUG_MODE, return mock wishlist data
+    if debug_mode:
+        mock_wishlist = [
+            {
+                'id': 1,
+                'product_id': 1,
+                'product': {
+                    'id': 1,
+                    'name': 'Premium Wireless Headphones',
+                    'price': 199.99,
+                    'description': 'High-quality wireless headphones with noise cancellation',
+                    'image_url': 'https://example.com/images/headphones.jpg'
+                },
+                'added_at': '2025-05-01T10:30:00'
+            },
+            {
+                'id': 2,
+                'product_id': 3,
+                'product': {
+                    'id': 3,
+                    'name': 'Smart Watch Pro',
+                    'price': 299.99,
+                    'description': 'Advanced smartwatch with health monitoring features',
+                    'image_url': 'https://example.com/images/smartwatch.jpg'
+                },
+                'added_at': '2025-05-03T14:15:00'
+            }
+        ]
+        logger.info("Returning mock wishlist data in DEBUG_MODE")
+        return jsonify(mock_wishlist), 200
+    
+    # Not in DEBUG_MODE - use database
     current_user_id = request.user_id
     profile = Profile.query.filter_by(user_id=current_user_id).first()
     if not profile:
