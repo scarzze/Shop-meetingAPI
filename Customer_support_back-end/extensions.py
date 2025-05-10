@@ -6,4 +6,4 @@ from flask_socketio import SocketIO
 db = SQLAlchemy()
 jwt = JWTManager()
 mail = Mail()
-socketio = SocketIO(cors_allowed_origins="*")
+socketio = SocketIO(cors_allowed_origins="*", async_mode='eventlet')
