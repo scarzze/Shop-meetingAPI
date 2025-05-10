@@ -1,13 +1,4 @@
-<<<<<<< HEAD
-Flask
-Flask-SocketIO
-Flask-Mail
-Flask-JWT-Extended
-Flask-SQLAlchemy
-psycopg2-binary
-python-dotenv
-eventlet
-=======
+
 alembic==1.8.1
 bidict==0.23.1
 blinker==1.8.2
