@@ -3,7 +3,7 @@ from config import Config
 from extensions import db, jwt, mail, socketio
 from routes.auth import auth_bp
 from routes.contact import contact_bp
-from routes import chat  # Assuming chat events are registered in chat.py
+from routes import chat
 from flask_cors import CORS
 import eventlet
 import logging
@@ -19,7 +19,7 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Health check route (MOVED TO CORRECT INDENTATION)
+    # Health check route
     @app.route('/health', methods=['GET'])
     def health_check():
         try:
@@ -37,15 +37,15 @@ def create_app():
     socketio.init_app(app, cors_allowed_origins="*", async_mode='eventlet')
 
     # Register blueprints
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(contact_bp)
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(contact_bp, url_prefix='/api')
 
     # Register socket events
     @socketio.on('connect')
     def handle_connect():
         token = request.args.get('token')
         if not token:
-            return False  # Disconnect
+            return False
         try:
             user_identity = decode_token(token)['sub']
             request.namespace.user_id = user_identity
@@ -79,4 +79,4 @@ def home():
     return jsonify({"message": "Server is up"})
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False, use_reloader=False)
+    socketio.run(app, host='0.0.0.0', port=5004, debug=True)

@@ -5,6 +5,10 @@
 #ifndef Py_GREENLETOBJECT_H
 #define Py_GREENLETOBJECT_H
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> Salma
 #include <Python.h>
 
 #ifdef __cplusplus
@@ -14,6 +18,10 @@ extern "C" {
 /* This is deprecated and undocumented. It does not change. */
 #define GREENLET_VERSION "1.0.0"
 
+<<<<<<< HEAD
+#ifndef GREENLET_MODULE
+#define implementation_ptr_t void*
+=======
 #if PY_VERSION_HEX >= 0x30B00A6
 #  define GREENLET_PY311 1
    /* _PyInterpreterFrame moved to the internal C API in Python 3.11 */
@@ -21,10 +29,20 @@ extern "C" {
 #else
 #  define GREENLET_PY311 0
 #  define _PyCFrame CFrame
+>>>>>>> Salma
 #endif
 
 typedef struct _greenlet {
     PyObject_HEAD
+<<<<<<< HEAD
+    PyObject* weakreflist;
+    PyObject* dict;
+    implementation_ptr_t pimpl;
+} PyGreenlet;
+
+#define PyGreenlet_Check(op) (op && PyObject_TypeCheck(op, &PyGreenlet_Type))
+
+=======
     char* stack_start;
     char* stack_stop;
     char* stack_copy;
@@ -63,11 +81,16 @@ typedef struct _greenlet {
 #define PyGreenlet_STARTED(op) (((PyGreenlet*)(op))->stack_stop != NULL)
 #define PyGreenlet_ACTIVE(op) (((PyGreenlet*)(op))->stack_start != NULL)
 #define PyGreenlet_GET_PARENT(op) (((PyGreenlet*)(op))->parent)
+>>>>>>> Salma
 
 /* C API functions */
 
 /* Total number of symbols that are exported */
+<<<<<<< HEAD
+#define PyGreenlet_API_pointers 12
+=======
 #define PyGreenlet_API_pointers 8
+>>>>>>> Salma
 
 #define PyGreenlet_Type_NUM 0
 #define PyExc_GreenletError_NUM 1
@@ -79,6 +102,14 @@ typedef struct _greenlet {
 #define PyGreenlet_Switch_NUM 6
 #define PyGreenlet_SetParent_NUM 7
 
+<<<<<<< HEAD
+#define PyGreenlet_MAIN_NUM 8
+#define PyGreenlet_STARTED_NUM 9
+#define PyGreenlet_ACTIVE_NUM 10
+#define PyGreenlet_GET_PARENT_NUM 11
+
+=======
+>>>>>>> Salma
 #ifndef GREENLET_MODULE
 /* This section is used by modules that uses the greenlet C API */
 static void** _PyGreenlet_API = NULL;
@@ -144,6 +175,42 @@ static void** _PyGreenlet_API = NULL;
         (*(int (*)(PyGreenlet * greenlet, PyGreenlet * nparent)) \
              _PyGreenlet_API[PyGreenlet_SetParent_NUM])
 
+<<<<<<< HEAD
+/*
+ * PyGreenlet_GetParent(PyObject* greenlet)
+ *
+ * return greenlet.parent;
+ *
+ * This could return NULL even if there is no exception active.
+ * If it does not return NULL, you are responsible for decrementing the
+ * reference count.
+ */
+#     define PyGreenlet_GetParent                                    \
+    (*(PyGreenlet* (*)(PyGreenlet*))                                 \
+     _PyGreenlet_API[PyGreenlet_GET_PARENT_NUM])
+
+/*
+ * deprecated, undocumented alias.
+ */
+#     define PyGreenlet_GET_PARENT PyGreenlet_GetParent
+
+#     define PyGreenlet_MAIN                                         \
+    (*(int (*)(PyGreenlet*))                                         \
+     _PyGreenlet_API[PyGreenlet_MAIN_NUM])
+
+#     define PyGreenlet_STARTED                                      \
+    (*(int (*)(PyGreenlet*))                                         \
+     _PyGreenlet_API[PyGreenlet_STARTED_NUM])
+
+#     define PyGreenlet_ACTIVE                                       \
+    (*(int (*)(PyGreenlet*))                                         \
+     _PyGreenlet_API[PyGreenlet_ACTIVE_NUM])
+
+
+
+
+=======
+>>>>>>> Salma
 /* Macro that imports greenlet and initializes C API */
 /* NOTE: This has actually moved to ``greenlet._greenlet._C_API``, but we
    keep the older definition to be sure older code that might have a copy of
