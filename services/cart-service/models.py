@@ -1,10 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy_serializer import SerializerMixin
 from datetime import datetime
 
 db = SQLAlchemy()
 
-class User(db.Model, SerializerMixin):
+class User(db.Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -13,7 +12,7 @@ class User(db.Model, SerializerMixin):
     cart_items = db.relationship('CartItem', back_populates='user')
     orders = db.relationship('Order', back_populates='user')
 
-class Product(db.Model, SerializerMixin):
+class Product(db.Model):
     __tablename__ = 'product'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -24,7 +23,7 @@ class Product(db.Model, SerializerMixin):
     cart_items = db.relationship('CartItem', back_populates='product')
     order_items = db.relationship('OrderItem', back_populates='product')
 
-class CartItem(db.Model, SerializerMixin):
+class CartItem(db.Model):
     __tablename__ = 'cart_item'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -35,7 +34,7 @@ class CartItem(db.Model, SerializerMixin):
     user = db.relationship('User', back_populates='cart_items')
     product = db.relationship('Product', back_populates='cart_items')
 
-class Order(db.Model, SerializerMixin):
+class Order(db.Model):
     __tablename__ = 'order'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -60,7 +59,7 @@ class Order(db.Model, SerializerMixin):
     user = db.relationship('User', back_populates='orders')
     items = db.relationship('OrderItem', back_populates='order')
 
-class OrderItem(db.Model, SerializerMixin):
+class OrderItem(db.Model):
     __tablename__ = 'order_item'
 
     id = db.Column(db.Integer, primary_key=True)

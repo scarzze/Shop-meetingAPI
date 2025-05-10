@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Setup the database session
-DATABASE_URI = os.getenv('DATABASE_URI', 'postgresql://victor:password123@localhost/customer_support_db')
+DATABASE_URI = os.getenv('DATABASE_URL')
 engine = create_engine(DATABASE_URI)
 Session = sessionmaker(bind=engine)
 session = Session()

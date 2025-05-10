@@ -102,3 +102,13 @@ DETAIL:  Key (user_id)=(5) is not present in table "user".
 2025-05-05 10:49:27,227 - cart-service - INFO - Starting Cart Service
 2025-05-05 10:49:27,228 - cart-service - INFO - Configured database connection
 2025-05-05 10:49:27,256 - cart-service - INFO - Registered error handlers
+2025-05-06 08:01:35,047 - cart-service - INFO - Starting Cart Service
+2025-05-06 08:01:35,050 - cart-service - INFO - Configured database connection
+2025-05-06 08:01:35,227 - cart-service - INFO - Registered error handlers
+2025-05-06 08:03:21,253 - cart-service - INFO - Starting Cart Service
+2025-05-06 08:03:21,253 - cart-service - INFO - Configured database connection
+2025-05-06 08:03:21,294 - cart-service - INFO - Registered error handlers
+2025-05-06 08:04:22,636 - cart-service - INFO - Starting Cart Service
+2025-05-06 08:35:33,168 - cart-service - INFO - Starting Cart Service
+2025-05-06 08:35:33,170 - cart-service - INFO - Configured database connection
+2025-05-06 08:35:33,283 - cart-service - INFO - Registered error handlers

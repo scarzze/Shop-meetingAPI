@@ -76,3 +76,7 @@ TypeError: 'first_name' is an invalid keyword argument for User
 2025-05-05 01:24:58,684 [INFO] [customer-support-service] - Flask extensions initialized
 2025-05-05 01:24:58,786 [INFO] [customer-support-service] - Database tables created successfully
 2025-05-05 01:24:58,787 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-06 12:19:18,011 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-06 12:19:18,013 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-06 12:19:18,014 [INFO] [customer-support-service] - CORS configured
+2025-05-06 12:19:18,089 [INFO] [customer-support-service] - Flask extensions initialized

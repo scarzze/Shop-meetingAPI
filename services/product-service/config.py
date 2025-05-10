@@ -7,10 +7,7 @@ class Config:
     DEBUG = os.environ.get('DEBUG_MODE', 'False').lower() == 'true'
     
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL', 
-        'postgresql://hosea:moringa001@localhost:5432/order_db'
-    )
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT Configuration
