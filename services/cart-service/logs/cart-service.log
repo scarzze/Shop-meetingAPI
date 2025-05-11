@@ -368,3 +368,51 @@ DETAIL:  Key (user_id)=(5) is not present in table "user".
 2025-05-07 16:34:08,366 - cart-service - INFO - Configured database connection
 2025-05-07 16:34:08,367 - cart-service - INFO - Registered error handlers
 2025-05-07 16:34:08,370 - cart-service - INFO - Starting server with debug=False
+2025-05-10 11:24:03,779 - cart-service - INFO - Starting Cart Service
+2025-05-10 11:24:03,780 - cart-service - INFO - Configured database connection
+2025-05-10 11:24:03,781 - cart-service - INFO - Registered error handlers
+2025-05-10 11:24:03,786 - cart-service - INFO - Starting server with debug=False
+2025-05-10 11:29:15,462 - cart-service - INFO - Starting Cart Service
+2025-05-10 11:29:15,462 - cart-service - INFO - Configured database connection
+2025-05-10 11:29:15,462 - cart-service - INFO - Registered error handlers
+2025-05-10 11:29:15,467 - cart-service - INFO - Starting server with debug=False
+2025-05-10 11:35:00,288 - cart-service - INFO - Starting Cart Service
+2025-05-10 11:35:00,288 - cart-service - INFO - Configured database connection
+2025-05-10 11:35:00,289 - cart-service - INFO - Registered error handlers
+2025-05-10 11:35:00,296 - cart-service - INFO - Starting server with debug=False
+2025-05-10 14:13:44,271 - cart-service - INFO - Starting Cart Service
+2025-05-10 14:13:44,273 - cart-service - INFO - Configured database connection
+2025-05-10 14:13:44,274 - cart-service - INFO - Registered error handlers
+2025-05-10 14:13:44,287 - cart-service - INFO - Starting server with debug=False
+2025-05-10 22:34:07,140 - cart-service - INFO - Starting Cart Service
+2025-05-10 22:34:07,141 - cart-service - INFO - Configured database connection
+2025-05-10 22:34:07,142 - cart-service - INFO - Registered error handlers
+2025-05-10 22:34:07,156 - cart-service - INFO - Starting server with debug=False
+2025-05-11 00:10:31,179 - cart-service - INFO - Starting Cart Service
+2025-05-11 00:10:31,180 - cart-service - INFO - Configured database connection
+2025-05-11 00:10:31,180 - cart-service - INFO - Registered error handlers
+2025-05-11 00:10:31,186 - cart-service - INFO - Starting server with debug=False
+2025-05-11 00:12:58,812 - cart-service - INFO - Starting Cart Service
+2025-05-11 00:12:58,813 - cart-service - INFO - Configured database connection
+2025-05-11 00:12:58,813 - cart-service - INFO - Registered error handlers
+2025-05-11 00:12:58,818 - cart-service - INFO - Starting server with debug=False
+2025-05-11 00:18:06,559 - cart-service - INFO - Starting Cart Service
+2025-05-11 00:18:06,560 - cart-service - INFO - Configured database connection
+2025-05-11 00:18:06,561 - cart-service - INFO - Registered error handlers
+2025-05-11 00:18:06,566 - cart-service - INFO - Starting server with debug=False
+2025-05-11 16:00:45,976 - cart-service - INFO - Starting Cart Service
+2025-05-11 16:00:45,977 - cart-service - INFO - Configured database connection
+2025-05-11 16:00:45,977 - cart-service - INFO - Registered error handlers
+2025-05-11 16:00:45,992 - cart-service - INFO - Starting server with debug=False
+2025-05-11 17:49:23,430 - cart-service - INFO - Starting Cart Service
+2025-05-11 17:49:23,431 - cart-service - INFO - Configured database connection
+2025-05-11 17:49:23,432 - cart-service - INFO - Registered error handlers
+2025-05-11 17:49:23,441 - cart-service - INFO - Starting server with debug=False
+2025-05-11 19:47:14,719 - cart-service - INFO - Starting Cart Service
+2025-05-11 19:47:14,721 - cart-service - INFO - Configured database connection
+2025-05-11 19:47:14,722 - cart-service - INFO - Registered error handlers
+2025-05-11 19:47:14,728 - cart-service - INFO - Starting server with debug=False
+2025-05-11 20:28:20,284 - cart-service - INFO - Starting Cart Service
+2025-05-11 20:28:20,285 - cart-service - INFO - Configured database connection
+2025-05-11 20:28:20,285 - cart-service - INFO - Registered error handlers
+2025-05-11 20:28:20,290 - cart-service - INFO - Starting server with debug=False

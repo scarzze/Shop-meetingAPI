@@ -25,7 +25,7 @@ class Config:
     JWT_REQUIRED_CLAIMS = ['exp', 'iat'] if not os.environ.get('FLASK_ENV') == 'development' else []
     
     # Service URLs
-    PRODUCT_SERVICE_URL = os.getenv('PRODUCT_SERVICE_URL', 'http://localhost:5001')
+    PRODUCT_SERVICE_URL = os.getenv('PRODUCT_SERVICE_URL', 'http://localhost:5006')
     AUTH_SERVICE_URL = os.getenv('AUTH_SERVICE_URL', 'http://localhost:5002')
     FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
     
