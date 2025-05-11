@@ -416,3 +416,7 @@ DETAIL:  Key (user_id)=(5) is not present in table "user".
 2025-05-11 20:28:20,285 - cart-service - INFO - Configured database connection
 2025-05-11 20:28:20,285 - cart-service - INFO - Registered error handlers
 2025-05-11 20:28:20,290 - cart-service - INFO - Starting server with debug=False
+2025-05-11 20:51:47,462 - cart-service - INFO - Starting Cart Service
+2025-05-11 20:51:47,463 - cart-service - INFO - Configured database connection
+2025-05-11 20:51:47,463 - cart-service - INFO - Registered error handlers
+2025-05-11 20:51:47,468 - cart-service - INFO - Starting server with debug=False
