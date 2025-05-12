@@ -424,3 +424,58 @@ DETAIL:  Key (user_id)=(5) is not present in table "user".
 2025-05-11 21:45:57,449 - cart-service - INFO - Configured database connection
 2025-05-11 21:45:57,450 - cart-service - INFO - Registered error handlers
 2025-05-11 21:45:57,454 - cart-service - INFO - Starting server with debug=False
+2025-05-11 22:08:10,317 - cart-service - INFO - Starting Cart Service
+2025-05-11 22:08:10,317 - cart-service - INFO - Configured database connection
+2025-05-11 22:08:10,318 - cart-service - INFO - Registered error handlers
+2025-05-11 22:08:10,322 - cart-service - INFO - Starting server with debug=False
+2025-05-11 22:48:49,703 - cart-service - INFO - Starting Cart Service
+2025-05-11 22:48:49,704 - cart-service - INFO - Configured database connection
+2025-05-11 22:57:41,242 - cart-service - INFO - Starting Cart Service
+2025-05-11 22:57:41,242 - cart-service - INFO - Configured database connection
+2025-05-11 22:58:23,780 - cart-service - INFO - Starting Cart Service
+2025-05-11 22:58:23,780 - cart-service - INFO - Configured database connection
+2025-05-11 22:58:23,780 - cart-service - INFO - Registered error handlers
+2025-05-11 22:58:23,784 - cart-service - INFO - Starting server with debug=False
+2025-05-11 23:00:47,049 - cart-service - INFO - Starting Cart Service
+2025-05-11 23:00:47,050 - cart-service - INFO - Configured database connection
+2025-05-11 23:02:31,841 - cart-service - INFO - Starting Cart Service
+2025-05-11 23:02:31,842 - cart-service - INFO - Configured database connection
+2025-05-11 23:03:20,648 - cart-service - INFO - Starting Cart Service
+2025-05-11 23:03:20,648 - cart-service - INFO - Configured database connection
+2025-05-11 23:03:20,650 - cart-service - INFO - Registered error handlers
+2025-05-11 23:03:20,669 - cart-service - INFO - Starting server with debug=False
+2025-05-11 23:56:19,826 - cart-service - INFO - Starting Cart Service
+2025-05-11 23:56:19,829 - cart-service - INFO - Configured database connection
+2025-05-11 23:56:19,830 - cart-service - INFO - Registered error handlers
+2025-05-11 23:56:19,838 - cart-service - INFO - Starting server with debug=False
+2025-05-12 00:29:17,951 - cart-service - INFO - Starting Cart Service
+2025-05-12 00:29:17,952 - cart-service - INFO - Configured database connection
+2025-05-12 01:15:14,866 - cart-service - INFO - Starting Cart Service
+2025-05-12 01:15:14,870 - cart-service - INFO - Configured database connection
+2025-05-12 01:19:28,684 - cart-service - INFO - Starting Cart Service
+2025-05-12 01:19:28,685 - cart-service - INFO - Configured database connection
+2025-05-12 01:23:59,587 - cart-service - INFO - Starting Cart Service
+2025-05-12 01:23:59,588 - cart-service - INFO - Configured database connection
+2025-05-12 01:23:59,623 - cart-service - INFO - Registered error handlers
+2025-05-12 01:23:59,627 - cart-service - INFO - Starting server with debug=False
+2025-05-12 02:02:27,315 - cart-service - INFO - Starting Cart Service
+2025-05-12 02:02:27,371 - cart-service - INFO - Configured database connection
+2025-05-12 02:05:05,062 - cart-service - INFO - Starting Cart Service
+2025-05-12 02:05:05,063 - cart-service - INFO - Configured database connection
+2025-05-12 02:05:05,083 - cart-service - INFO - Registered error handlers
+2025-05-12 02:05:05,089 - cart-service - INFO - Starting server with debug=False
+2025-05-12 02:07:07,878 - cart-service - INFO - Starting Cart Service
+2025-05-12 02:07:07,879 - cart-service - INFO - Configured database connection
+2025-05-12 02:07:07,903 - cart-service - INFO - Registered error handlers
+2025-05-12 02:07:07,911 - cart-service - INFO - Starting server with debug=False
+2025-05-12 02:11:39,257 - cart-service - INFO - Starting Cart Service
+2025-05-12 02:11:39,258 - cart-service - INFO - Configured database connection
+2025-05-12 02:11:39,286 - cart-service - INFO - Registered error handlers
+2025-05-12 02:11:39,310 - cart-service - INFO - Starting server with debug=False
+2025-05-12 02:44:03,508 - cart-service - INFO - Successfully retrieved 0 cart items for user 1
+2025-05-12 02:48:41,337 - cart-service - ERROR - Error adding item to cart: (psycopg2.errors.ForeignKeyViolation) insert or update on table "cart_item" violates foreign key constraint "cart_item_product_id_fkey"
+DETAIL:  Key (product_id)=(1) is not present in table "product".
+
+[SQL: INSERT INTO cart_item (user_id, product_id, quantity) VALUES (%(user_id)s, %(product_id)s, %(quantity)s) RETURNING cart_item.id]
+[parameters: {'user_id': 1, 'product_id': 1, 'quantity': 2}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
