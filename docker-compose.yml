@@ -28,7 +28,7 @@ services:
     ports:
       - "5001:5001"
     environment:
-      - DATABASE_URL=postgresql://hosea:moringa001@postgres:5432/cart_db
+      - DATABASE_URI=postgresql://hosea:moringa001@postgres:5432/cart_db
       - AUTH_SERVICE_URL=http://auth-service:5002
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
@@ -94,7 +94,7 @@ services:
     ports:
       - "5004:5004"
     environment:
-      - DATABASE_URL=postgresql://hosea:moringa001@postgres:5432/customer_support_db
+      - DATABASE_URI=postgresql://hosea:moringa001@postgres:5432/customer_support_db
       - AUTH_SERVICE_URL=http://auth-service:5002
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5004/health"]

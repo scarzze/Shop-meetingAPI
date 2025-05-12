@@ -347,3 +347,39 @@ FATAL:  password authentication failed for user "postgres"
 
 (Background on this error at: https://sqlalche.me/e/14/e3q8)
 2025-05-07 16:34:14,717 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-12 12:58:12,602 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-12 12:58:12,603 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-12 12:58:12,605 [INFO] [customer-support-service] - CORS configured
+2025-05-12 12:58:13,870 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-12 12:58:14,412 [ERROR] [customer-support-service] - Error creating database tables: (psycopg2.OperationalError) connection to server at "localhost" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+connection to server at "localhost" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-05-12 12:58:14,679 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-12 13:36:36,815 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-12 13:36:36,817 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-12 13:36:36,818 [INFO] [customer-support-service] - CORS configured
+2025-05-12 13:36:37,136 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-12 13:36:37,292 [ERROR] [customer-support-service] - Error creating database tables: (psycopg2.OperationalError) connection to server at "localhost" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+connection to server at "localhost" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-05-12 13:36:37,294 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-12 13:37:30,263 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-12 13:37:30,264 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-12 13:37:30,265 [INFO] [customer-support-service] - CORS configured
+2025-05-12 13:37:30,485 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-12 13:37:30,575 [ERROR] [customer-support-service] - Error creating database tables: (psycopg2.OperationalError) connection to server at "localhost" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+connection to server at "localhost" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-05-12 13:37:30,577 [INFO] [customer-support-service] - Customer Support Service initialization complete
+2025-05-12 13:42:00,321 [INFO] [customer-support-service] - Logging initialized with level: INFO
+2025-05-12 13:42:00,322 [INFO] [customer-support-service] - Customer Support Service configuration loaded
+2025-05-12 13:42:00,323 [INFO] [customer-support-service] - CORS configured
+2025-05-12 13:42:00,578 [INFO] [customer-support-service] - Flask extensions initialized
+2025-05-12 13:42:00,679 [ERROR] [customer-support-service] - Error creating database tables: (psycopg2.OperationalError) connection to server at "localhost" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+connection to server at "localhost" (127.0.0.1), port 5432 failed: FATAL:  password authentication failed for user "postgres"
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-05-12 13:42:00,681 [INFO] [customer-support-service] - Customer Support Service initialization complete
