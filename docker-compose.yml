@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  # API Gateway for standardized endpoints
+  api-gateway:
+    image: nginx:alpine
+    container_name: shop-api-gateway
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/simple_nginx.conf:/etc/nginx/nginx.conf
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
