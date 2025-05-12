@@ -479,3 +479,7 @@ DETAIL:  Key (product_id)=(1) is not present in table "product".
 [SQL: INSERT INTO cart_item (user_id, product_id, quantity) VALUES (%(user_id)s, %(product_id)s, %(quantity)s) RETURNING cart_item.id]
 [parameters: {'user_id': 1, 'product_id': 1, 'quantity': 2}]
 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-05-12 03:45:12,042 - cart-service - INFO - Starting Cart Service
+2025-05-12 03:45:12,044 - cart-service - INFO - Configured database connection
+2025-05-12 03:45:12,080 - cart-service - INFO - Registered error handlers
+2025-05-12 03:45:12,092 - cart-service - INFO - Starting server with debug=False
