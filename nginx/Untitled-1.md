@@ -1,1 +1,0 @@
-DATABASE_URL=postgresql://cart_service_user:J0NXXyu7S80Qq5g18wz5eOJ3AxH1gYUx@dpg-d069l23uibrs73ec2j6g-a.oregon-postgres.render.com/auth_service_db

@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - AUTH_SERVICE_URL=http://auth-service:5001
+      - PROFILE_SERVICE_URL=http://profile-service:5002
+      - PRODUCT_SERVICE_URL=http://product-service:5003
+      - CART_SERVICE_URL=http://cart-service:5004
+      - ORDER_SERVICE_URL=http://order-service:5005
+      - SUPPORT_SERVICE_URL=http://customer-support-service:5006
+      - FRONTEND_URL=http://localhost:3000
+    depends_on:
+      - auth-service
+      - profile-service
+      - product-service
+      - cart-service
+      - order-service
+      - customer-support-service
+    networks:
+      - shop-network
+
+  auth-service:
+    build: ./services/auth-service
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URI=sqlite:///auth.db
+      - SECRET_KEY=auth-service-secret-key
+      - JWT_SECRET_KEY=jwt-secret-key-for-auth-service
+      - PORT=5001
+    networks:
+      - shop-network
+
+  profile-service:
+    build: ./services/profile-service
+    ports:
+      - "5002:5002"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URI=sqlite:///profile.db
+      - SECRET_KEY=profile-service-secret-key
+      - AUTH_SERVICE_URL=http://auth-service:5001
+      - PORT=5002
+    depends_on:
+      - auth-service
+    networks:
+      - shop-network
+
+  product-service:
+    build: ./services/product-service
+    ports:
+      - "5003:5003"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URI=sqlite:///product.db
+      - SECRET_KEY=product-service-secret-key
+      - AUTH_SERVICE_URL=http://auth-service:5001
+      - PORT=5003
+    depends_on:
+      - auth-service
+    networks:
+      - shop-network
+
+  cart-service:
+    build: ./services/cart-service
+    ports:
+      - "5004:5004"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URI=sqlite:///cart.db
+      - SECRET_KEY=cart-service-secret-key
+      - AUTH_SERVICE_URL=http://auth-service:5001
+      - PRODUCT_SERVICE_URL=http://product-service:5003
+      - PORT=5004
+    depends_on:
+      - auth-service
+      - product-service
+    networks:
+      - shop-network
+
+  order-service:
+    build: ./services/order-service
+    ports:
+      - "5005:5005"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URI=sqlite:///order.db
+      - SECRET_KEY=order-service-secret-key
+      - AUTH_SERVICE_URL=http://auth-service:5001
+      - PRODUCT_SERVICE_URL=http://product-service:5003
+      - CART_SERVICE_URL=http://cart-service:5004
+      - PROFILE_SERVICE_URL=http://profile-service:5002
+      - PORT=5005
+    depends_on:
+      - auth-service
+      - profile-service
+      - product-service
+      - cart-service
+    networks:
+      - shop-network
+
+  customer-support-service:
+    build: ./services/customer-support-service
+    ports:
+      - "5006:5006"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - DATABASE_URI=sqlite:///support.db
+      - SECRET_KEY=support-service-secret-key
+      - AUTH_SERVICE_URL=http://auth-service:5001
+      - PORT=5006
+    depends_on:
+      - auth-service
+    networks:
+      - shop-network
+
+networks:
+  shop-network:
+    driver: bridge
