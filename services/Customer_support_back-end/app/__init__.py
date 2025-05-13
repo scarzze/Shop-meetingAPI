@@ -22,7 +22,28 @@ def create_app():
     app.logger = logger
     
     # Load configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI', 'postgresql://victor:password123@localhost/customer_support_db')
+    # Try to use PostgreSQL, but fall back to SQLite if needed
+    try:
+        database_uri = os.getenv('DATABASE_URI', 'postgresql://victor:password123@localhost/customer_support_db')
+        logger.info(f"Attempting to connect to database: {database_uri.split('@')[0].split('://')[0]}")
+        
+        # Test database connection before setting it
+        from sqlalchemy import create_engine
+        engine = create_engine(database_uri)
+        connection = engine.connect()
+        connection.close()
+        
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
+        logger.info("Successfully connected to PostgreSQL database")
+        
+    except Exception as e:
+        logger.warning(f"PostgreSQL connection failed: {str(e)}")
+        logger.info("Falling back to SQLite database")
+        # Use SQLite as fallback with absolute path
+        sqlite_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', 'instance', 'customer_support.db')
+        os.makedirs(os.path.dirname(sqlite_path), exist_ok=True)
+        app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{sqlite_path}'
+    
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
     app.config['AUTH_SERVICE_URL'] = os.getenv('AUTH_SERVICE_URL', 'http://localhost:5002')
@@ -73,7 +94,26 @@ def create_app():
     @app.route('/health')
     def health_check():
         logger.debug("Health check received")
-        return {'status': 'healthy', 'service': 'customer-support'}, 200
+        try:
+            # Verify database connection
+            with db.engine.connect() as connection:
+                connection.execute("SELECT 1")
+            db_status = "connected"
+        except Exception as e:
+            logger.error(f"Database health check failed: {str(e)}")
+            db_status = f"error: {str(e)}"
+        
+        return {
+            'status': 'healthy',
+            'service': 'customer-support',
+            'database': db_status,
+            'version': '1.0.0'
+        }, 200
+        
+    # Root endpoint for basic connectivity check
+    @app.route('/')
+    def root():
+        return {'service': 'customer-support'}, 200
     
     logger.info("Customer Support Service initialization complete")
     return app

@@ -156,8 +156,12 @@ def update_env_file(service, debug_mode=False, use_local_db=False):
 def check_service_health(service):
     """Check if a service is running and healthy"""
     try:
+        # Use a longer timeout for Customer Support Service
+        timeout = 10 if service['name'] == 'Customer Support Service' else 2
+        
         # Make a request to the health endpoint
-        response = requests.get(f"{service['url']}/health", timeout=2)
+        print(f"Checking health of {service['name']} at {service['url']}/health with timeout={timeout}")
+        response = requests.get(f"{service['url']}/health", timeout=timeout)
         
         # Consider any response as healthy if we get a response from the service
         # This is more tolerant of different health check implementations
