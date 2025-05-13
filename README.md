@@ -158,10 +158,6 @@ Then start the API Gateway and frontend separately:
 # Start API Gateway
 cd api-gateway
 python app.py
-
-# In another terminal, start the frontend
-cd frontend
-node server.js
 ```
 
 #### Option 3: Using Docker Compose
@@ -209,10 +205,6 @@ python app.py
 # API Gateway
 cd api-gateway
 python app.py
-
-# Frontend
-cd frontend
-node server.js
 ```
 
 ## API Endpoints

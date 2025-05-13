@@ -4,3 +4,13 @@ __pycache__
 *.log
 logs/
 migrations/
+# client/
+api-gateway/node_modules
+api-gateway/venv
+services/auth-service/node_modules
+services/profile-service/node_modules
+services/product-service/node_modules
+services/cart-service/node_modules
+services/order-service/node_modules
+services/customer-support-service/node_modules
+README.md

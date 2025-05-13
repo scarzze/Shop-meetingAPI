@@ -289,15 +289,18 @@ def search_products():
     if not query:
         return jsonify({'error': 'Search query is required'}), 400
     
-    # Search in name and description
+    # Simple search implementation
+    search_term = f'%{query}%'
     products = Product.query.filter(
         db.or_(
-            Product.name.ilike(f'%{query}%'),
-            Product.description.ilike(f'%{query}%')
+            Product.name.ilike(search_term),
+            Product.description.ilike(search_term),
+            Product.category.ilike(search_term)
         )
     ).all()
     
     return jsonify({
+        'query': query,
         'results': [{
             'id': p.id,
             'name': p.name,
@@ -309,6 +312,50 @@ def search_products():
             'category': p.category
         } for p in products]
     }), 200
+
+# Get personalized recommendations
+@app.route('/recommendations', methods=['GET'])
+def get_recommendations():
+    # Get optional parameters
+    limit = request.args.get('limit', 8, type=int)
+    user_id = request.args.get('user_id', None)
+    
+    # Validate limit
+    if limit < 1 or limit > 20:
+        limit = 8  # Default to 8 if invalid
+    
+    # If user_id is provided, we could fetch user's browsing history or preferences
+    # from a database to provide personalized recommendations
+    # For now, we'll implement a simple recommendation algorithm
+    
+    # Get a mix of products from different categories
+    categories = db.session.query(Product.category).distinct().limit(4).all()
+    category_names = [c[0] for c in categories]
+    
+    recommendations = []
+    
+    # Get top products from each category
+    for category in category_names:
+        category_products = Product.query.filter_by(category=category).limit(limit // len(category_names) + 1).all()
+        recommendations.extend(category_products)
+    
+    # Shuffle and limit to requested number
+    import random
+    random.shuffle(recommendations)
+    recommendations = recommendations[:limit]
+    
+    return jsonify([
+        {
+            'id': p.id,
+            'name': p.name,
+            'description': p.description,
+            'price': p.price,
+            'oldPrice': p.oldPrice,
+            'stock': p.stock,
+            'image_url': p.image_url,
+            'category': p.category
+        } for p in recommendations
+    ]), 200
 
 if __name__ == '__main__':
     with app.app_context():

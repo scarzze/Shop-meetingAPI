@@ -42,7 +42,7 @@ cd ..
 
 echo -e "${GREEN}All components started successfully!${NC}"
 echo "API Gateway: http://localhost:5000"
-echo "Frontend: http://localhost:3000"
+echo "Frontend: http://localhost:5173"
 echo ""
 echo "To stop all components, run: ./stop_all.sh"
 

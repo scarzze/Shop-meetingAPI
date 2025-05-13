@@ -43,6 +43,7 @@ SERVICE_ROUTES = {
     '/categories': PRODUCT_SERVICE_URL,
     '/search': PRODUCT_SERVICE_URL,
     '/favorites': PRODUCT_SERVICE_URL,
+    '/recommendations': PRODUCT_SERVICE_URL,
     '/cart': CART_SERVICE_URL,
     '/orders': ORDER_SERVICE_URL,
     '/tickets': SUPPORT_SERVICE_URL,
@@ -55,9 +56,9 @@ def index():
         'services': {
             'auth': AUTH_SERVICE_URL,
             'profile': PROFILE_SERVICE_URL,
-            'product': PRODUCT_SERVICE_URL,
+            'products': PRODUCT_SERVICE_URL,
             'cart': CART_SERVICE_URL,
-            'order': ORDER_SERVICE_URL,
+            'orders': ORDER_SERVICE_URL,
             'support': SUPPORT_SERVICE_URL
         }
     })
