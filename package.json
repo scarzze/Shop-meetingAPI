@@ -1,0 +1,28 @@
+{
+  "name": "shop-meetingapi",
+  "version": "1.0.0",
+  "description": "Package\tPurpose Flask\tCore web framework Flask-Cors\tEnable CORS for cross-origin requests Flask-SQLAlchemy\tORM for working with PostgreSQL psycopg2-binary\tPostgreSQL driver python-dotenv\tLoad environment variables from .env file PyJWT\tJSON Web Token encoding/decoding requests\tSend HTTP requests (e.g., calling other services) python-dateutil\tBetter date handling (timestamps, etc.)",
+  "main": "dev-proxy.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "proxy": "node dev-proxy.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scarzze/Shop-meetingAPI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/scarzze/Shop-meetingAPI/issues"
+  },
+  "homepage": "https://github.com/scarzze/Shop-meetingAPI#readme",
+  "dependencies": {
+    "axios": "^1.9.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.5",
+    "node-fetch": "^2.7.0"
+  }
+}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CORS Test</title>
+</head>
+<body>
+    <h1>CORS Test</h1>
+    <button onclick="testHealthCheck()">Test Health Check</button>
+    <button onclick="testProductsAPI()">Test Products API</button>
+    
+    <div id="results" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; white-space: pre;"></div>
+    
+    <script>
+        function log(message) {
+            const results = document.getElementById('results');
+            results.textContent += message + '\n';
+        }
+        
+        function clearLog() {
+            const results = document.getElementById('results');
+            results.textContent = '';
+        }
+        
+        async function testHealthCheck() {
+            clearLog();
+            log('Testing Health Check endpoint...');
+            
+            try {
+                const response = await fetch('http://localhost:5006/health', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                log('Response status: ' + response.status);
+                
+                // Log all response headers
+                log('\nResponse headers:');
+                for (const [key, value] of response.headers.entries()) {
+                    log(`${key}: ${value}`);
+                }
+                
+                // Log response body
+                const data = await response.json();
+                log('\nResponse body:');
+                log(JSON.stringify(data, null, 2));
+                
+            } catch (error) {
+                log('Error: ' + error.message);
+            }
+        }
+        
+        async function testProductsAPI() {
+            clearLog();
+            log('Testing Products API endpoint...');
+            
+            try {
+                const response = await fetch('http://localhost:5006/api/v1/products?page=1&category=&min_price=0&max_price=100000&sort=newest', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                log('Response status: ' + response.status);
+                
+                // Log all response headers
+                log('\nResponse headers:');
+                for (const [key, value] of response.headers.entries()) {
+                    log(`${key}: ${value}`);
+                }
+                
+                // Log response body
+                const data = await response.json();
+                log('\nResponse body:');
+                log(JSON.stringify(data, null, 2));
+                
+            } catch (error) {
+                log('Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

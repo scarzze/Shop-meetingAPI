@@ -204,7 +204,7 @@ def register_users():
                     "access_token": login_data.get("access_token", "")
                 }
                 registered_users.append(registered_user)
-                print_colored(f"  ✅ User authenticated: {user['first_name']} {user['last_name']}")
+                print_colored(f"  [OK] User authenticated: {user['first_name']} {user['last_name']}")
             elif register_response.status_code == 200 or register_response.status_code == 201:
                 # User was registered successfully but login failed
                 data = register_response.json()
@@ -217,11 +217,11 @@ def register_users():
                     "last_name": user["last_name"]
                 }
                 registered_users.append(registered_user)
-                print_colored(f"  ✅ Registered user: {user['first_name']} {user['last_name']}")
+                print_colored(f"  [OK] Registered user: {user['first_name']} {user['last_name']}")
             else:
-                print_colored(f"  ❌ Failed to authenticate {user['first_name']} {user['last_name']}: {login_response.text}", Colors.YELLOW)
+                print_colored(f"  [ERROR] Failed to authenticate {user['first_name']} {user['last_name']}: {login_response.text}", Colors.YELLOW)
         except requests.RequestException as e:
-            print_colored(f"  ❌ Error with user {user['first_name']} {user['last_name']}: {str(e)}", Colors.RED)
+            print_colored(f"  [ERROR] Error with user {user['first_name']} {user['last_name']}: {str(e)}", Colors.RED)
     
     return registered_users
 
@@ -241,10 +241,10 @@ def login_user(user):
             data = response.json()
             return data.get("access_token")
         else:
-            print_colored(f"  ❌ Failed to login user {user['email']}: {response.text}", Colors.YELLOW)
+            print_colored(f"  [ERROR] Failed to login user {user['email']}: {response.text}", Colors.YELLOW)
             return None
     except requests.RequestException as e:
-        print_colored(f"  ❌ Error logging in user {user['email']}: {str(e)}", Colors.RED)
+        print_colored(f"  [ERROR] Error logging in user {user['email']}: {str(e)}", Colors.RED)
         return None
 
 def create_profiles(registered_users):
@@ -331,10 +331,10 @@ def create_products():
     if registered_users and len(registered_users) > 0:
         token = login_user(registered_users[0])
         if not token:
-            print_colored("  ❌ Cannot create products without authentication", Colors.RED)
+            print_colored("  [ERROR] Cannot create products without authentication", Colors.RED)
             return
     else:
-        print_colored("  ❌ No registered users available for authentication", Colors.RED)
+        print_colored("  [ERROR] No registered users available for authentication", Colors.RED)
         return
     
     # First check if there are any categories, create if needed
@@ -354,12 +354,12 @@ def create_products():
                 headers={"Authorization": f"Bearer {token}"}
             )
             if response.status_code == 200 or response.status_code == 201:
-                print_colored(f"  ✅ Created category {category['name']}")
+                print_colored(f"  [OK] Created category {category['name']}")
             else:
                 # Ignore if category already exists
-                print_colored(f"  ℹ️ Category {category['name']} may already exist: {response.text}", Colors.YELLOW)
+                print_colored(f"  [INFO] Category {category['name']} may already exist: {response.text}", Colors.YELLOW)
         except requests.RequestException as e:
-            print_colored(f"  ❌ Error creating category {category['name']}: {str(e)}", Colors.RED)
+            print_colored(f"  [ERROR] Error creating category {category['name']}: {str(e)}", Colors.RED)
     
     # Try different product endpoints        
     for product in products:
@@ -389,17 +389,17 @@ def create_products():
                         headers={"Authorization": f"Bearer {token}"}
                     )
                     if response.status_code == 200 or response.status_code == 201:
-                        print_colored(f"  ✅ Created product {product['name']} via {endpoint}")
+                        print_colored(f"  [OK] Created product {product['name']} via {endpoint}")
                         success = True
                         break
                 except:
                     continue
             
             if not success:
-                print_colored(f"  ❌ Failed to create product {product['name']}: Could not find working endpoint", Colors.YELLOW)
+                print_colored(f"  [ERROR] Failed to create product {product['name']}: Could not find working endpoint", Colors.YELLOW)
                 
         except requests.RequestException as e:
-            print_colored(f"  ❌ Error creating product {product['name']}: {str(e)}", Colors.RED)
+            print_colored(f"  [ERROR] Error creating product {product['name']}: {str(e)}", Colors.RED)
 
 def add_items_to_cart(registered_users):
     """Add items to user carts"""
@@ -629,13 +629,13 @@ def main():
             all_healthy = False
     
     if not all_healthy:
-        print_colored("\n⚠️ Not all services are healthy. Some seeding operations may fail.", Colors.YELLOW)
+        print_colored("\n[WARNING] Not all services are healthy. Some seeding operations may fail.", Colors.YELLOW)
         print("Continue anyway? (y/n): ", end="")
         if input().lower() != 'y':
             print_colored("Seeding canceled.", Colors.YELLOW)
             return
     
-    # Allow selection of specific operations
+# ... (rest of the code remains the same)
     print("\nSelect operations to perform:")
     print("1. Register/Login Users")
     print("2. Create User Profiles")
@@ -674,4 +674,76 @@ def main():
     print_colored("Your Shop-meetingAPI now has sample data for testing and development.", Colors.GREEN)
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description='Seed data for Shop-meetingAPI')
+    parser.add_argument('--users', action='store_true', help='Register/login users')
+    parser.add_argument('--profiles', action='store_true', help='Create user profiles')
+    parser.add_argument('--products', action='store_true', help='Create products')
+    parser.add_argument('--carts', action='store_true', help='Add items to carts')
+    parser.add_argument('--orders', action='store_true', help='Create orders')
+    parser.add_argument('--tickets', action='store_true', help='Create support tickets')
+    parser.add_argument('--all', action='store_true', help='Run all operations')
+    parser.add_argument('--non-interactive', action='store_true', help='Run without any interactive prompts')
+    
+    args = parser.parse_args()
+    
+    # If no specific arguments provided, run interactive mode
+    if not any([args.users, args.profiles, args.products, args.carts, args.orders, args.tickets, args.all]):
+        main()
+    else:
+        print_colored("=== Shop-meetingAPI Data Seeding ===", Colors.GREEN)
+        print_colored("This script will populate your databases with sample data.\n")
+        
+        # Check if services are running
+        services = [
+            ("Auth Service", AUTH_SERVICE_URL),
+            ("Profile Service", PROFILE_SERVICE_URL),
+            ("Product Service", PRODUCT_SERVICE_URL),
+            ("Cart Service", CART_SERVICE_URL),
+            ("Order Service", ORDER_SERVICE_URL),
+            ("Customer Support Service", CUSTOMER_SUPPORT_URL)
+        ]
+        
+        all_healthy = True
+        for service_name, url in services:
+            if not check_service_health(service_name, url):
+                all_healthy = False
+        
+        if not all_healthy and not args.non_interactive:
+            print_colored("\n⚠️ Not all services are healthy. Some seeding operations may fail.", Colors.YELLOW)
+            print("Continue anyway? (y/n): ", end="")
+            if input().lower() != 'y':
+                print_colored("Seeding canceled.", Colors.YELLOW)
+                sys.exit(1)
+        elif not all_healthy and args.non_interactive:
+            print_colored("\n[WARNING] Not all services are healthy. Continuing anyway (non-interactive mode).", Colors.YELLOW)
+        
+        # Start seeding data based on arguments
+        if args.users or args.all:
+            registered_users = register_users()
+        
+        if args.profiles or args.all:
+            if not registered_users:
+                registered_users = register_users()
+            create_profiles(registered_users)
+        
+        if args.products or args.all:
+            create_products()
+        
+        if args.carts or args.all:
+            if not registered_users:
+                registered_users = register_users()
+            add_items_to_cart(registered_users)
+        
+        if args.orders or args.all:
+            if not registered_users:
+                registered_users = register_users()
+            create_orders(registered_users)
+        
+        if args.tickets or args.all:
+            if not registered_users:
+                registered_users = register_users()
+            create_support_tickets(registered_users)
+        
+        print_colored("\n=== Seeding Complete ===", Colors.GREEN)
+        print_colored("Your Shop-meetingAPI now has sample data for testing and development.", Colors.GREEN)
