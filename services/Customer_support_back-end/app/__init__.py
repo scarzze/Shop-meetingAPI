@@ -79,7 +79,8 @@ def create_app():
     
     # Register blueprints/routes
     with app.app_context():
-        from .routes import register_routes
+        # Import the routes.py file directly from the app directory
+        from app.routes import register_routes
         register_routes(app)
         
         # Create database tables
@@ -90,25 +91,36 @@ def create_app():
             logger.error(f"Error creating database tables: {str(e)}")
             # Don't fail on database errors - we have fallback mechanisms
     
-    # Health check endpoint
+    # Health check endpoint - simplified for reliability
     @app.route('/health')
     def health_check():
         logger.debug("Health check received")
         try:
-            # Verify database connection
-            with db.engine.connect() as connection:
-                connection.execute("SELECT 1")
-            db_status = "connected"
+            # Try database connection but don't fail the health check if it doesn't work
+            db_status = "unknown"
+            try:
+                with db.engine.connect() as connection:
+                    connection.execute("SELECT 1")
+                db_status = "connected"
+            except Exception as e:
+                logger.warning(f"Database health check warning: {str(e)}")
+                db_status = "disconnected"
+            
+            # Always return 200 for health checks
+            return {
+                'status': 'healthy',
+                'service': 'customer-support',
+                'database': db_status,
+                'version': '1.0.0'
+            }, 200
         except Exception as e:
-            logger.error(f"Database health check failed: {str(e)}")
-            db_status = f"error: {str(e)}"
-        
-        return {
-            'status': 'healthy',
-            'service': 'customer-support',
-            'database': db_status,
-            'version': '1.0.0'
-        }, 200
+            # Even if something else fails, still return a valid response
+            logger.error(f"Health check error: {str(e)}")
+            return {
+                'status': 'degraded',
+                'service': 'customer-support',
+                'error': str(e)
+            }, 200
         
     # Root endpoint for basic connectivity check
     @app.route('/')

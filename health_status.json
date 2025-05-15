@@ -1,0 +1,33 @@
+{
+  "auth": {
+    "healthy": false,
+    "details": "HTTPConnectionPool(host='auth-service', port=5002): Max retries exceeded with url: /health (Caused by NameResolutionError(\"<urllib3.connection.HTTPConnection object at 0x000002047F4B74D0>: Failed to resolve 'auth-service' ([Errno 11001] getaddrinfo failed)\"))",
+    "checked_at": "2025-05-15T09:07:59.103157"
+  },
+  "cart": {
+    "healthy": false,
+    "details": "HTTPConnectionPool(host='cart-service', port=5001): Max retries exceeded with url: /health (Caused by NameResolutionError(\"<urllib3.connection.HTTPConnection object at 0x000002047F487750>: Failed to resolve 'cart-service' ([Errno 11001] getaddrinfo failed)\"))",
+    "checked_at": "2025-05-15T09:07:59.103157"
+  },
+  "profile": {
+    "healthy": false,
+    "details": "HTTPConnectionPool(host='profile-service', port=5013): Max retries exceeded with url: /health (Caused by NameResolutionError(\"<urllib3.connection.HTTPConnection object at 0x000002047F5A0190>: Failed to resolve 'profile-service' ([Errno 11001] getaddrinfo failed)\"))",
+    "checked_at": "2025-05-15T09:07:59.103157"
+  },
+  "order": {
+    "healthy": false,
+    "details": "HTTPConnectionPool(host='order-service', port=5005): Max retries exceeded with url: /health (Caused by NameResolutionError(\"<urllib3.connection.HTTPConnection object at 0x000002047F5948A0>: Failed to resolve 'order-service' ([Errno 11001] getaddrinfo failed)\"))",
+    "checked_at": "2025-05-15T09:07:59.103157"
+  },
+  "customer-support": {
+    "healthy": false,
+    "details": "HTTPConnectionPool(host='customer-support', port=5004): Max retries exceeded with url: /health (Caused by NameResolutionError(\"<urllib3.connection.HTTPConnection object at 0x000002047F5950F0>: Failed to resolve 'customer-support' ([Errno 11001] getaddrinfo failed)\"))",
+    "checked_at": "2025-05-15T09:07:59.103157"
+  },
+  "product": {
+    "healthy": false,
+    "details": "HTTPConnectionPool(host='product-service', port=5006): Max retries exceeded with url: /health (Caused by NameResolutionError(\"<urllib3.connection.HTTPConnection object at 0x000002047F52EC30>: Failed to resolve 'product-service' ([Errno 11001] getaddrinfo failed)\"))",
+    "checked_at": "2025-05-15T09:07:59.103157"
+  },
+  "overall_status": "degraded"
+}
