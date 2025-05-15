@@ -15,6 +15,7 @@ from pathlib import Path
 
 # Global constants
 PROJECT_ROOT = Path(os.path.dirname(os.path.abspath(__file__)))
+IS_WINDOWS = os.name == 'nt'
 SERVICES = [
     {
         "name": "Auth Service",
@@ -154,68 +155,88 @@ def update_env_file(service, debug_mode=False, use_local_db=False):
     return True
 
 def check_service_health(service):
-    """Check if a service is running and healthy"""
-    try:
-        # Use a longer timeout for Customer Support Service
-        timeout = 10 if service['name'] == 'Customer Support Service' else 2
-        
-        # Make a request to the health endpoint
-        print(f"Checking health of {service['name']} at {service['url']}/health with timeout={timeout}")
-        response = requests.get(f"{service['url']}/health", timeout=timeout)
-        
-        # Consider any response as healthy if we get a response from the service
-        # This is more tolerant of different health check implementations
-        if response.status_code < 500:  # Any non-500 response means the service is running
-            print(f"Got response from {service['name']}: {response.status_code}")
-            return True
+    """Check if a service is running and healthy with improved timeout handling"""
+    # Use longer timeouts for all services to be compatible with WSL and slower environments
+    base_timeout = 5  # Increased from 2 to 5 seconds
+    # Customer Support Service known to be slower so give it even more time
+    timeout = 15 if service['name'] == 'Customer Support Service' else base_timeout
+    
+    # Try multiple times with increasing timeouts
+    max_attempts = 2
+    for attempt in range(max_attempts):
+        try:            
+            # Make a request to the health endpoint
+            current_timeout = timeout * (attempt + 1)  # Increase timeout with each attempt
+            print(f"Checking health of {service['name']} at {service['url']}/health with timeout={current_timeout}")
+            response = requests.get(f"{service['url']}/health", timeout=current_timeout)
             
-        # If we get a 500+ error, log it for debugging
-        print(f"Health check for {service['name']} returned error {response.status_code}: {response.text[:100]}")
-        return False
-    except requests.RequestException as e:
-        print(f"Connection error to {service['name']}: {str(e)}")
-        return False
+            # Consider any response as healthy if we get a response from the service
+            # This is more tolerant of different health check implementations
+            if response.status_code < 500:  # Any non-500 response means the service is running
+                print(f"Got response from {service['name']}: {response.status_code}")
+                return True
+                
+            # If we get a 500+ error, log it for debugging
+            print(f"Health check for {service['name']} returned error {response.status_code}: {response.text[:100]}")
+            
+            # Don't immediately fail - try again unless this is the last attempt
+            if attempt < max_attempts - 1:
+                print(f"Retrying health check for {service['name']} (attempt {attempt+1}/{max_attempts})...")
+                time.sleep(2)  # Wait between attempts
+            
+        except requests.RequestException as e:
+            print(f"Connection error to {service['name']}: {str(e)}")
+            
+            # Don't immediately fail - try again unless this is the last attempt
+            if attempt < max_attempts - 1:
+                print(f"Retrying health check for {service['name']} (attempt {attempt+1}/{max_attempts})...")
+                time.sleep(2)  # Wait between attempts
+            
+    # If we've exhausted all attempts without success
+    return False
 
 def start_service(service, debug_mode=False, use_local_db=False):
     """Start a microservice"""
-    service_path = PROJECT_ROOT / "services" / service["dir"]
-    entry_file = service_path / service["entry_file"]
-    
-    if not entry_file.exists():
-        print_error(f"Entry file {service['entry_file']} not found for {service['name']}")
-        return False
-    
-    # Kill existing process on this port if any
     try:
-        subprocess.run(["fuser", "-k", f"{service['port']}/tcp"], 
-                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        time.sleep(1)  # Wait for port to be freed
-    except Exception:
-        pass
-    
-    # Update environment variables
-    if not update_env_file(service, debug_mode, use_local_db):
-        return False
-    
-    # Start the service
-    try:
-        cmd = ["python", str(entry_file)]
-        print(f"Starting {service['name']} with command: {' '.join(cmd)}")
+        service_path = PROJECT_ROOT / "services" / service["dir"]
+        entry_file = service_path / service["entry_file"]
         
+        if not entry_file.exists():
+            print_error(f"Entry file {entry_file} not found")
+            return False
+        
+        # Configure environment variables
         env = os.environ.copy()
-        env["DEBUG_MODE"] = "true" if debug_mode else "false"
+        env["DEBUG_MODE"] = str(debug_mode).lower()
         
+        # Set database URL based on local or remote
+        if use_local_db and "local_db" in service:
+            env[service["env_var"]] = service["local_db"]
+            # Also set the SQLITE_FALLBACK for services that support it
+            if service["env_var"] == "DATABASE_URL":
+                env["SQLITE_FALLBACK_URL"] = f"sqlite:///{service_path / 'dev.db'}"
+            elif service["env_var"] == "DATABASE_URI":
+                env["SQLITE_FALLBACK_URI"] = f"sqlite:///{service_path / 'dev.db'}"
+
+        # Prepare command using platform-appropriate path handling
+        python_exe = "python" if IS_WINDOWS else "python3"
+        entry_file_str = str(entry_file).replace("\\", "/") if IS_WINDOWS else str(entry_file)
+        command = f"{python_exe} {entry_file_str}"
+        print(f"Starting {service['name']} with command: {command}")
+        
+        # Start the process
         process = subprocess.Popen(
-            cmd,
-            cwd=str(service_path),
+            command,
+            shell=True,
             env=env,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True
         )
         
-        # Give it a moment to start
-        time.sleep(2)
+        # Give it a moment to start (increase for slower environments)
+        startup_time = 5  # Increased from 2 to 5 seconds for better compatibility
+        time.sleep(startup_time)
         
         # Check if process is still running
         if process.poll() is not None:
@@ -225,13 +246,19 @@ def start_service(service, debug_mode=False, use_local_db=False):
             print(f"STDERR: {stderr[:500]}")
             return False
         
-        # Check if service is responding
-        if check_service_health(service):
-            print_success(f"{service['name']} is running on port {service['port']}")
-            return True
-        else:
-            print_warning(f"{service['name']} started but not responding to health checks")
-            return True
+        # Check if service is responding (with multiple retries)
+        max_retries = 3
+        for retry in range(max_retries):
+            if check_service_health(service):
+                print_success(f"{service['name']} is running on port {service['port']}")
+                return True
+            elif retry < max_retries - 1:
+                print(f"Retry {retry+1}/{max_retries} checking health...")
+                time.sleep(2)  # Wait between retries
+        
+        # If we reach here, service didn't respond to health checks
+        print_warning(f"{service['name']} started but not responding to health checks")
+        return True
     except Exception as e:
         print_error(f"Error starting {service['name']}: {str(e)}")
         return False
