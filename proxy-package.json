@@ -1,0 +1,14 @@
+{
+  "name": "shop-meeting-api-dev-proxy",
+  "version": "1.0.0",
+  "description": "Development proxy server for Shop-meetingAPI microservices",
+  "main": "dev-proxy.js",
+  "scripts": {
+    "start": "node dev-proxy.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6"
+  }
+}

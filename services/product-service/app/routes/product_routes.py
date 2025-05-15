@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, make_response
 from ..models import Product, Category, db
 from ..auth.middleware import auth_required
 from ..utils.validators import validate_product_data
@@ -11,7 +11,7 @@ import logging
 bp = Blueprint('product', __name__, url_prefix='/api/v1/products')
 logger = logging.getLogger(__name__)
 
-@bp.route('', methods=['GET'])
+@bp.route('', methods=['GET', 'OPTIONS'])
 def get_products():
     """
     Get products with pagination, filtering, and sorting
@@ -20,7 +20,9 @@ def get_products():
     
     # Check if DEBUG_MODE is enabled
     import os
-    debug_mode = os.getenv('DEBUG_MODE', 'False').lower() == 'true'
+    # Hardcode debug_mode to False to ensure we're using the actual database
+    debug_mode = False
+    logger.info(f"DEBUG_MODE: {debug_mode}")
     
     # Get pagination parameters
     page, per_page = PaginationHelper.get_pagination_params()
@@ -235,7 +237,7 @@ def get_products():
         logger.error(f"Database error in get_products: {str(e)}")
         return jsonify({"error": "Database error", "message": str(e)}), 500
 
-@bp.route('/<int:product_id>', methods=['GET'])
+@bp.route('/<int:product_id>', methods=['GET', 'OPTIONS'])
 def get_product(product_id):
     """Get product by ID"""
     logger.info(f"Getting product with ID: {product_id}")
@@ -337,7 +339,7 @@ def get_product(product_id):
         logger.error(f"Database error in get_product: {str(e)}")
         return jsonify({"error": "Database error", "message": str(e)}), 500
 
-@bp.route('', methods=['POST'])
+@bp.route('', methods=['POST', 'OPTIONS'])
 @auth_required
 def create_product():
     """Create a new product"""
@@ -393,7 +395,7 @@ def create_product():
         logger.error(f"Error in create_product: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-@bp.route('/<int:product_id>', methods=['PUT'])
+@bp.route('/<int:product_id>', methods=['PUT', 'OPTIONS'])
 @auth_required
 def update_product(product_id):
     """Update a product"""
@@ -445,7 +447,7 @@ def update_product(product_id):
         logger.error(f"Error in update_product: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-@bp.route('/<int:product_id>', methods=['PATCH'])
+@bp.route('/<int:product_id>', methods=['PATCH', 'OPTIONS'])
 @auth_required
 def partial_update_product(product_id):
     """Partially update a product"""
@@ -514,7 +516,7 @@ def partial_update_product(product_id):
         logger.error(f"Database error in partial_update_product: {str(e)}")
         return jsonify({"error": "Database error", "message": str(e)}), 500
 
-@bp.route('/<int:product_id>', methods=['DELETE'])
+@bp.route('/<int:product_id>', methods=['DELETE', 'OPTIONS'])
 @auth_required
 def delete_product(product_id):
     """Delete a product"""
